@@ -195,6 +195,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: conversations.php?conversation_id=" . $conversation_id_to_join);
         exit;
     }
+    elseif ($action === 'create_group') {
+        $group_name = trim($_POST['group_name'] ?? '');
+        $visibility = ($_POST['visibility'] ?? 'public') === 'private' ? 'private' : 'public';
+        $group_members = trim($_POST['group_members'] ?? '');
+
+        if (!empty($group_name)) {
+            $mysqli->begin_transaction();
+            try {
+                $stmt_create = $mysqli->prepare("INSERT INTO conversations (name, type, visibility, creator_id) VALUES (?, 'group', ?, ?)");
+                $stmt_create->bind_param("ssi", $group_name, $visibility, $current_user_id);
+                $stmt_create->execute();
+                $new_group_id = $mysqli->insert_id;
+
+                // Add creator as admin
+                $stmt_add_creator = $mysqli->prepare("INSERT INTO conversation_members (conversation_id, user_id, role) VALUES (?, ?, 'admin')");
+                $stmt_add_creator->bind_param("ii", $new_group_id, $current_user_id);
+                $stmt_add_creator->execute();
+
+                // Add additional members if provided
+                if (!empty($group_members)) {
+                    $public_ids = array_filter(array_map('trim', explode(',', $group_members)));
+                    if (!empty($public_ids)) {
+                        $placeholders = implode(',', array_fill(0, count($public_ids), '?'));
+                        $types = str_repeat('s', count($public_ids));
+                        $stmt_users = $mysqli->prepare("SELECT id FROM users WHERE public_id IN ($placeholders)");
+                        $stmt_users->bind_param($types, ...$public_ids);
+                        $stmt_users->execute();
+                        $result_users = $stmt_users->get_result();
+                        while ($row = $result_users->fetch_assoc()) {
+                            $uid = $row['id'];
+                            if ($uid != $current_user_id) {
+                                $stmt_add = $mysqli->prepare("INSERT INTO conversation_members (conversation_id, user_id, role) VALUES (?, ?, 'member')");
+                                $stmt_add->bind_param("ii", $new_group_id, $uid);
+                                $stmt_add->execute();
+                            }
+                        }
+                    }
+                }
+
+                $mysqli->commit();
+                header("Location: conversations.php?conversation_id=" . $new_group_id);
+                exit;
+            } catch (Exception $e) {
+                $mysqli->rollback();
+                $modal_error = "Error creating group. Please try again.";
+                $show_modal_on_load = true;
+                $modal_to_show = 'newGroupModal';
+            }
+        } else {
+            $modal_error = "Group name cannot be empty.";
+            $show_modal_on_load = true;
+            $modal_to_show = 'newGroupModal';
+        }
+    }
 }
 
 
@@ -859,6 +913,8 @@ if ($is_conversation_view) {
             }
         }
 
+
+
         function restoreMessageView() {
             if (!isManagementViewActive || !originalMessagePanelState.header) return;
             const msgPanel = document.getElementById('message-panel');
@@ -924,7 +980,7 @@ if ($is_conversation_view) {
                         } else {
                             const fileIcon = document.createElement('div');
                             fileIcon.className = 'file-preview-img';
-                            fileIcon.style.cssText = 'background-color:#4a5568; display:flex; align-items:center; justify-content:center; font-size:12px; color:white;';
+                            fileIcon.style.cssText = 'background-color:#4b5568; display:flex; align-items:center; justify-content:center; font-size:12px; color:white;';
                             fileIcon.textContent = file.name.split('.').pop().toUpperCase().substring(0, 4);
                             previewItem.appendChild(fileIcon);
                         }
