@@ -1,0 +1,15 @@
+
+         :root { --bg-main: #17212b; --bg-secondary: #242f3d; --bg-tertiary: #1c2734; --border-color: #374151; --text-primary: #e5e7eb; --text-secondary: #9ca3af; --accent-blue: #4a93e0; --danger-color: #ef4444; }
+        body { font-family: -apple-system, sans-serif; background-color: var(--bg-main); color: var(--text-primary); line-height: 1.6; }
+        .container { max-width: 900px; margin: 2rem auto; padding: 2rem; background-color: var(--bg-secondary); border-radius: 12px; }
+        h1, h2 { border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 1rem; color: #fff; }
+        .info-grid { display: grid; grid-template-columns: 120px 1fr; gap: 0.75rem 1.5rem; margin-bottom: 2rem; }
+        .info-grid strong { color: var(--text-secondary); text-align: right; }
+        .session-item { background-color: var(--bg-tertiary); padding: 1.25rem; border-radius: 8px; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+        .session-details { flex-grow: 1; }
+        .session-details .device { font-weight: 600; }
+        .session-details .ip, .session-details .time { font-size: 0.875rem; color: var(--text-secondary); }
+        .logout-btn { background-color: transparent; border: 1px solid var(--danger-color); color: var(--danger-color); padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+        .logout-btn:hover { background-color: var(--danger-color); color: #fff; }
+        .logout-all-form { margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem; }
+        .main-link { display: inline-block; margin-top: 2rem; color: var(--accent-blue); font-weight: 600; }

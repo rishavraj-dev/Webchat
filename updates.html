@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webchat - Update History</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom CSS from scratch */
+        :root {
+            --primary-dark: #1f2937;
+            --secondary-dark: #0f172a;
+            --text-white: #ffffff;
+            --text-gray-200: #e5e7eb;
+            --text-gray-300: #d1d5db;
+            --text-gray-400: #9ca3af;
+            --text-blue-100: #dbeafe;
+            --text-blue-200: #bfdbfe;
+            --text-blue-300: #93c5fd;
+            --text-green-100: #dcfce7;
+            --text-green-200: #a7f3d0;
+            --text-green-300: #6ee7b7;
+            --text-purple-100: #ede9fe;
+            --text-purple-200: #ddd6fe;
+            --text-purple-300: #c4b5fd;
+            --bg-gray-700: #374151;
+            --bg-gray-800: #1f2937;
+            --bg-blue-600: #2563eb;
+            --bg-blue-700: #1d4ed8;
+            --bg-green-700: #047857;
+            --bg-purple-700: #7e22ce;
+            --border-blue-500: #3b82f6;
+            --border-green-500: #10b981;
+            --border-purple-500: #a855f7;
+            --border-gray-600: #4b5563;
+            --bg-indigo-700: #4338ca; /* New color for Key Highlights */
+            --border-indigo-500: #6366f1; /* New border color for Key Highlights */
+            --text-indigo-100: #e0e7ff; /* New text color for Key Highlights list */
+            --text-indigo-200: #c7d2fe; /* New text color for Key Highlights title icon */
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0; /* Removed p-4 to allow full width */
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            color: var(--text-white);
+        }
+
+        .main-container {
+            background-color: var(--bg-gray-800);
+            padding: 2rem; /* p-8 */
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); /* shadow-2xl */
+            width: 100%; /* Changed to full width */
+            max-width: none; /* Removed max-w-4xl */
+            text-align: center;
+            transition: transform 0.3s ease-in-out; /* transition-transform duration-300 ease-in-out */
+        }
+
+        .main-container:hover {
+            transform: scale(1.01); /* hover:scale-105 adjusted slightly for full page */
+        }
+
+        .main-title {
+            font-size: 3rem; /* text-5xl */
+            font-weight: 800; /* font-extrabold */
+            color: var(--text-white);
+            margin-bottom: 1rem; /* mb-4 */
+            line-height: 1.25; /* leading-tight */
+        }
+
+        .subtitle {
+            font-size: 1.125rem; /* text-lg */
+            color: var(--text-blue-200);
+            margin-bottom: 2.5rem; /* mb-10 */
+        }
+
+        .section-spacing {
+            margin-bottom: 3rem; /* mb-12 */
+        }
+
+        .section-title {
+            font-size: 2.25rem; /* text-3xl */
+            font-weight: 700; /* font-bold */
+            color: var(--text-white);
+            margin-bottom: 1.5rem; /* mb-6 */
+            text-align: center;
+        }
+
+        .version-card {
+            padding: 1.5rem; /* p-6 */
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); /* shadow-md */
+            text-align: left;
+            transition: transform 0.2s ease-in-out; /* hover:scale-102 transition-transform duration-200 */
+        }
+
+        .version-card:hover {
+            transform: scale(1.01);
+        }
+
+        .version-card-title {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 700; /* font-bold */
+            color: var(--text-white);
+            margin-bottom: 0.5rem; /* mb-2 */
+            display: flex;
+            align-items: center;
+        }
+
+        .version-date {
+            font-size: 1.125rem; /* text-lg */
+            margin-left: 0.75rem; /* ml-3 */
+        }
+
+        .version-list {
+            list-style-type: disc;
+            list-style-position: inside;
+            margin-top: 0.5rem; /* space-y-2 */
+        }
+
+        .version-list li {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .version-list b {
+            font-weight: 700; /* font-bold */
+        }
+
+        /* Specific Version Card Colors */
+        .card-blue {
+            background-color: var(--bg-blue-700);
+            border: 2px solid var(--border-blue-500);
+            color: var(--text-blue-100);
+        }
+        .card-blue .version-date {
+            color: var(--text-blue-300);
+        }
+
+        .card-purple {
+            background-color: var(--bg-purple-700);
+            border: 2px solid var(--border-purple-500);
+            color: var(--text-purple-100);
+        }
+        .card-purple .version-date {
+            color: var(--text-purple-300);
+        }
+
+        .card-green {
+            background-color: var(--bg-green-700);
+            border: 2px solid var(--border-green-500);
+            color: var(--text-green-100);
+        }
+        .card-green .version-date {
+            color: var(--text-green-200);
+        }
+
+        .card-gray {
+            background-color: var(--bg-gray-700);
+            color: var(--text-gray-300);
+        }
+        .card-gray .version-date {
+            color: var(--text-gray-400);
+        }
+
+        /* New styles for Key Highlights section */
+        .card-indigo {
+            background-color: var(--bg-indigo-700);
+            border: 2px solid var(--border-indigo-500);
+            color: var(--text-indigo-100);
+        }
+        .card-indigo .version-date {
+            color: var(--text-indigo-200);
+        }
+
+        /* Collapsible content styles */
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .collapsible-card.active .collapsible-content {
+            max-height: 500px; /* Adjust as needed for content height */
+        }
+
+        .collapsible-card .toggle-icon {
+            transform: rotate(0deg);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .collapsible-card.active .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .planned-features-section {
+            border-top: 2px dashed var(--border-gray-600);
+            padding-top: 2rem; /* pt-8 */
+        }
+
+        .back-button {
+            display: inline-block;
+            background-color: var(--bg-blue-600);
+            color: var(--text-white);
+            padding: 1rem 2rem; /* px-8 py-4 */
+            border-radius: 0.5rem; /* rounded-lg */
+            font-weight: 600; /* font-semibold */
+            font-size: 1.25rem; /* text-xl */
+            text-decoration: none;
+            transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* transition-colors duration-300 ease-in-out shadow-lg */
+            margin-top: 1.5rem; /* mt-6 */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-button:hover {
+            background-color: #1e40af; /* hover:bg-blue-700 */
+            transform: translateY(-2px);
+            box-shadow: 0 15px 20px -5px rgba(0, 0, 0, 0.2), 0 6px 8px -6px rgba(0, 0, 0, 0.15);
+        }
+
+        .back-button:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--border-blue-500), 0 0 0 4px rgba(59, 130, 246, 0.5); /* focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 */
+        }
+
+        /* Responsive adjustments */
+        @media (min-width: 768px) { /* md: */
+            .main-container {
+                padding: 3rem 4rem; /* md:p-12 lg:p-16 */
+                /* max-width: 90%; Removed for full width */
+                margin: 0 auto; /* Center it */
+            }
+            .main-title {
+                font-size: 4rem; /* md:text-6xl */
+            }
+            .subtitle {
+                font-size: 1.25rem; /* md:text-xl */
+            }
+        }
+
+        @media (min-width: 1024px) { /* lg: */
+            .main-container {
+                /* max-width: 1000px; Removed for full width */
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-custom min-h-screen flex items-center justify-center">
+    <div class="main-container">
+        <!-- Main title -->
+        <h1 class="main-title">
+            Webchat Update Log
+        </h1>
+        <p class="subtitle">See what's new, improved, and coming soon!</p>
+
+        <!-- Launched Versions (Newest First) -->
+        <div class="space-y-8 section-spacing text-left max-w-2xl mx-auto">
+
+            <!-- Version 3.0.0 (Launched - Major Release) -->
+            <div class="version-card card-green">
+                <h3 class="version-card-title">
+                    <span>Version 3.0.0</span>
+                    <span class="version-date">(July 6, 2025) - Launched!</span>
+                </h3>
+                <ul class="version-list">
+                    <li>Public launch of Webchat.</li>
+                    <li>A major improved UI.</li>
+                    <li>Added the support for videos.</li>
+                    <li>Added support for direct URL sharing.</li>
+                    <li>Don't forget to follow the official channel Web Chat Official.</li>
+                    <li><b>Streamlined User Interface:</b> Experience a majorly improved and intuitive UI for seamless navigation.</li>
+                    <li><b>Enhanced Media Sharing:</b> Share images, PDFs, and now videos directly within your chats.</li>
+                    <li><b>Direct URL Support:</b> Easily share and preview web links directly in messages.</li>
+                    <li><b>Advanced Group & Channel Management:</b> Comprehensive tools for creating, managing, and moderating private and public groups and channels.</li>
+                    <li><b>Message Control:</b> Enjoy features like easy replies, one-click forwarding, and improved context menus for better chat management.</li>
+                    <li><b>Personalization & Device Management:</b> Customize your profile with pictures and manage your logged-in devices from a central dashboard.</li>
+                    <li><b>Robust Security:</b> All your files and conversations are securely protected from unauthorized access.</li>
+                    <li><b>Optimized Performance:</b> Smoother navigation, faster message loading, and a more robust search experience.</li>
+                    <li><b>Official Channel Integration:</b> Stay connected and informed by following the official "Web Chat Official" channel for announcements and support.</li>
+                </ul>
+            </div>
+
+            <!-- Version 2.5.0 (Launched - Major Feature Rollup) -->
+            <div class="version-card card-blue">
+                <h3 class="version-card-title">
+                    <span>Version 2.5.0</span>
+                    <span class="version-date">(July 2, 2025) - Major Feature Rollup!</span>
+                </h3>
+                <ul class="version-list">
+                    <li><b>Enhanced Media & File Management:</b> Improved UI for preview of selected files, added support for major image formats, and seamless file selection and sharing.</li>
+                    <li><b>Advanced Messaging Features:</b> Easy replies and one-click message forwarding with preview; improved context menus for messages (e.g., "Reply," "Message Info"); and the forward icon is now always visible and uses a reliable SVG.</li>
+                    <li><b>Comprehensive Group Capabilities:</b> Introduction of private groups for exclusive conversations, along with expanded and full group management features for both private and public groups.</li>
+                    <li><b>User Experience & Dashboard Improvements:</b> UI improvements for Hamburger menu and a dedicated 'Chats' button; more robust search functionality; dashboard updates including option to log out of other devices; edit options moved to settings; and the ability for users to set their profile pictures for customization.</li>
+                    <li><b>Stability & Fixes:</b> Previous rollback issues (from Version 2.0.0) successfully fixed and re-released.</li>
+                </ul>
+            </div>
+
+            <!-- Version 2.0.0 (Launched - Major Release) -->
+            <div class="version-card card-green">
+                <h3 class="version-card-title">
+                    <span>Version 2.0.0</span>
+                    <span class="version-date">(June 29, 2025) - Major Release!</span>
+                </h3>
+                <ul class="version-list">
+                    <li><b>Expanded Media Support:</b> Images, PDF, and rich text.</li>
+                    <li><b>Messages auto-delete after 24 hours for privacy.</b></li>
+                    <li><b>Enhanced File Security:</b> Files cannot be accessed by unauthorized users through direct links or any other means.</li>
+                    <li><b>File Preview:</b> File preview is now available before sending, ensuring you share the right content.</li>
+                    <li><b>Improved Group Chats:</b> Groups now display sender names, and you can easily start a personal chat with a sender by clicking on their name.</li>
+                    <li><b>Dashboard (View-Only):</b> A new dashboard is now available, providing a view-only overview of your activity.</li>
+                </ul>
+            </div>
+
+            <!-- Version 1.1.0 (Launched - Minor Release) -->
+            <div class="version-card card-gray collapsible-card" data-initial-hidden="true">
+                <h3 class="version-card-title cursor-pointer flex justify-between items-center">
+                    <span>Version 1.1.0</span>
+                    <span class="version-date">(June 28, 2025)</span>
+                    <svg class="toggle-icon w-6 h-6 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </h3>
+                <ul class="version-list collapsible-content">
+                    <li>Public groups: Create and join public communities!</li>
+                    <li>Improved chat message loading for smoother experience.</li>
+                </ul>
+            </div>
+
+            <!-- Version 1.0.0 (Launched - Initial Release) -->
+            <div class="version-card card-gray collapsible-card" data-initial-hidden="true">
+                <h3 class="version-card-title cursor-pointer flex justify-between items-center">
+                    <span>Version 1.0.0</span>
+                    <span class="version-date">(June 28, 2025)</span>
+                    <svg class="toggle-icon w-6 h-6 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </h3>
+                <ul class="version-list collapsible-content">
+                    <li>Initial Launch!</li>
+                    <li>Personal chats for one-on-one secure conversations.</li>
+                    <li>Privacy-focused architecture implemented.</li>
+                    <li>Messages auto-delete after 24 hours for privacy.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Planned Features Section -->
+        <div class="space-y-8 planned-features-section text-left max-w-2xl mx-auto">
+            <h2 class="section-title">Planned Features</h2>
+            <!-- No more planned features after 3.0.0 launch, this section will be empty or removed if no new plans -->
+            <p class="text-gray-400 text-center">Stay tuned for more exciting updates!</p>
+        </div>
+
+        <!-- Back to main page link -->
+        <a href="index.html" class="back-button">
+            Back to Main Page
+        </a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const collapsibleCards = document.querySelectorAll('.collapsible-card');
+
+            collapsibleCards.forEach(card => {
+                const title = card.querySelector('.version-card-title');
+                const content = card.querySelector('.collapsible-content');
+                const isInitialHidden = card.dataset.initialHidden === 'true';
+
+                // Set initial state based on data-initial-hidden
+                if (isInitialHidden) {
+                    content.style.maxHeight = '0'; // Ensure it's collapsed
+                    card.classList.remove('active'); // Ensure active class is removed
+                } else {
+                    // For other versions, ensure they are visible by default
+                    content.style.maxHeight = content.scrollHeight + "px"; // Set actual height
+                    card.classList.add('active'); // Mark as active if content is visible by default
+                }
+
+                title.addEventListener('click', () => {
+                    card.classList.toggle('active');
+                    if (card.classList.contains('active')) {
+                        content.style.maxHeight = content.scrollHeight + "px";
+                    } else {
+                        content.style.maxHeight = "0";
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

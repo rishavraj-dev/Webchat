@@ -1,0 +1,288 @@
+ :root {
+            --bg-main: #17212b;
+            --bg-secondary: #242f3d;
+            --bg-tertiary: #1c2734;
+            --border-color: #0f1721;
+            --text-primary: #fff;
+            --text-secondary: #8a9ba8;
+            --accent-blue: #4a93e0;
+            --accent-blue-active: #5d9ee9;
+            --danger-bg: #e53e3e;
+            --danger-text: #fef2f2;
+            --shadow-color: rgba(0,0,0,0.3);
+        }
+        html, body {
+            background: var(--bg-main);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            margin: 2rem auto 2rem auto;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            box-shadow: 0 4px 24px var(--shadow-color);
+            padding: 2rem 2rem 2.5rem 2rem;
+        }
+        h1, h2 {
+            color: var(--accent-blue);
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        .group-link-box {
+            background: var(--bg-tertiary);
+            padding: 1em 1.2em;
+            border-radius: 10px;
+            margin-bottom: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 1em;
+        }
+        .group-link-box input {
+            flex: 1;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            border: none;
+            padding: 0.6em 1em;
+            border-radius: 6px;
+            font-size: 1em;
+        }
+        .group-link-box button {
+            background: var(--accent-blue);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 0.6em 1.2em;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .group-link-box button:hover {
+            background: var(--accent-blue-active);
+        }
+        .section-card {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 1.2em 1em 1em 1em;
+            margin-bottom: 2em;
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+        .member-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .member-list li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 0.7em 1em;
+            margin-bottom: 0.6em;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+        }
+        .member-info {
+            display: flex;
+            align-items: center;
+            gap: 0.7em;
+        }
+        .admin-badge {
+            background: var(--accent-blue);
+            color: #fff;
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 0.85em;
+            margin-left: 0.5em;
+        }
+        .owner-badge {
+            background: #e04a4a;
+            color: #fff;
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 0.85em;
+            margin-left: 0.5em;
+        }
+        .member-actions form {
+            display: inline;
+            margin-left: 0.5em;
+        }
+        .member-actions button {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: none;
+            border-radius: 6px;
+            padding: 0.4em 1em;
+            font-size: 0.95em;
+            margin-left: 0.2em;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .member-actions button:hover {
+            background: var(--accent-blue);
+        }
+        .member-actions button[style*="background:#e04a4a"] {
+            background: #e04a4a !important;
+        }
+        .member-actions button[style*="background:#e04a4a"]:hover {
+            background: #b32d2d !important;
+        }
+        .member-actions button[style*="background:#4a93e0"] {
+            background: var(--accent-blue) !important;
+        }
+        .member-actions button[style*="background:#4a93e0"]:hover {
+            background: var(--accent-blue-active) !important;
+        }
+        .member-actions button[style*="background:#374151"] {
+            background: #374151 !important;
+        }
+        .member-actions button[style*="background:#374151"]:hover {
+            background: #2d3a4a !important;
+        }
+        #memberSearchBar {
+            width: 100%;
+            padding: 0.7em 1em;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            margin-bottom: 1em;
+            font-size: 1em;
+            transition: border 0.2s;
+        }
+        #memberSearchBar:focus {
+            outline: none;
+            border: 1.5px solid var(--accent-blue);
+        }
+        .add-member-form {
+            display: flex;
+            align-items: center;
+            gap: 0.7em;
+            margin-bottom: 1em;
+        }
+        .add-member-form input[type="text"] {
+            flex: 1;
+            padding: 0.7em 1em;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 1em;
+            transition: border 0.2s;
+        }
+        .add-member-form input[type="text"]:focus {
+            outline: none;
+            border: 1.5px solid var(--accent-blue);
+        }
+        .add-member-form button {
+            background: var(--accent-blue);
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 0.7em 1.5em;
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .add-member-form button:hover {
+            background: var(--accent-blue-active);
+        }
+        .shared-section {
+            margin-top: 2em;
+        }
+        .shared-images-list, .shared-files-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1em;
+            margin-top: 0.5em;
+        }
+        .shared-image, .shared-file {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 0.5em;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+        }
+        .shared-image img {
+            max-width: 44px;
+            max-height: 44px;
+            border-radius: 6px;
+            display: block;
+            object-fit: cover;
+            margin: 2px;
+        }
+        .shared-file a, .shared-image a {
+            color: var(--accent-blue);
+            text-decoration: underline;
+        }
+        .shared-file svg {
+            margin-right: 0.5em;
+        }
+        .no-shared {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+        }
+        .danger-zone {
+            margin-top: 2.5em;
+            padding: 1.2em 1em;
+            background: #2d1a1a;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .danger-zone button {
+            background: var(--danger-bg);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.7em 1.5em;
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 0.5em;
+            transition: background 0.2s;
+        }
+        .danger-zone button:hover {
+            background: #b32d2d;
+        }
+        @media (max-width: 700px) {
+    .container {
+        padding: 1rem 0.5rem 1.5rem 0.5rem;
+        margin: 0;
+        border-radius: 0;
+        max-width: 100vw;
+        min-height: 100vh;
+        box-shadow: none;
+    }
+    html, body {
+        background: var(--bg-main);
+        min-height: 100vh;
+        width: 100vw;
+        overflow-x: hidden;
+    }
+    h1, h2 {
+        font-size: 1.2rem;
+        margin-bottom: 0.7rem;
+    }
+    .section-card {
+        padding: 0.8em 0.5em 0.7em 0.5em;
+        margin-bottom: 1.2em;
+    }
+    .group-link-box {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5em;
+        padding: 0.7em 0.7em;
+    }
+    .shared-images-list, .shared-files-list {
+        gap: 0.5em;
+    }
+    .shared-image img {
+        max-width: 36px;
+        max-height: 36px;
+    }
+}
