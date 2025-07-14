@@ -102,274 +102,45 @@ if (isset($_GET['action']) && $_GET['action'] === 'start_dm' && isset($_GET['use
 $modal_error = ''; $show_modal_on_load = false; $modal_to_show = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // POST handling logic remains the same...
     $action = $_POST['action'] ?? '';
 
-    if ($action === 'send_message_or_file') {
-        $conversation_id = (int)$_POST['conversation_id'];
-        $message_body = trim($_POST['message_body']);
-        $reply_to = isset($_POST['reply_to']) && !empty($_POST['reply_to']) ? (int)$_POST['reply_to'] : null;
-        if ($conversation_id > 0) {
-            $stmt_verify = $mysqli->prepare("SELECT role FROM conversation_members WHERE conversation_id = ? AND user_id = ?");
-            $stmt_verify->bind_param("ii", $conversation_id, $current_user_id); $stmt_verify->execute();
-            if ($stmt_verify->get_result()->num_rows === 1) {
-                // This condition is now reliable
-                $files_uploaded = isset($_FILES['file_upload']) && $_FILES['file_upload']['error'][0] !== UPLOAD_ERR_NO_FILE;
-                
-                if ($files_uploaded) {
-                    $upload_dir = 'uploads/'; if (!is_dir($upload_dir)) mkdir($upload_dir, 0755, true);
-                    $caption_used = false;
-                    foreach ($_FILES['file_upload']['name'] as $i => $name) {
-                        if ($_FILES['file_upload']['error'][$i] !== UPLOAD_ERR_OK) continue;
-                        $tmp_name = $_FILES['file_upload']['tmp_name'][$i]; $type = mime_content_type($tmp_name);
-                        $filename = uniqid() . '-' . basename($name); $destination = $upload_dir . $filename;
-                        if (move_uploaded_file($tmp_name, $destination)) {
-                            $msg_type = strpos($type, 'image/') === 0 ? 'image' :
-                                        (strpos($type, 'pdf') !== false ? 'pdf' :
-                                        (strpos($type, 'video/') === 0 ? 'video' : 'file'));
-                            $current_body = (!$caption_used && !empty($message_body)) ? $message_body : null;
-                            $caption_used = true;
-                            $stmt_insert = $mysqli->prepare("INSERT INTO messages (conversation_id, sender_id, message_type, body, file_path, status, reply_to) VALUES (?, ?, ?, ?, ?, 'delivered', ?)");
-                            $stmt_insert->bind_param("issssi", $conversation_id, $current_user_id, $msg_type, $current_body, $destination, $reply_to);
-                            $stmt_insert->execute();
-                        }
+    // --- ADD THIS BLOCK ---
+    if ($action === 'start_chat') {
+        $public_id = trim($_POST['public_id'] ?? '');
+        $public_id = ltrim($public_id, '@'); // Remove leading @ if present
+        if (!empty($public_id)) {
+            $stmt_user = $mysqli->prepare("SELECT id FROM users WHERE public_id = ?");
+            $stmt_user->bind_param("s", $public_id);
+            $stmt_user->execute();
+            $result_user = $stmt_user->get_result();
+            if ($result_user->num_rows === 1) {
+                $target_user_id = $result_user->fetch_assoc()['id'];
+                if ($target_user_id != $current_user_id) {
+                    $conversation_id = findOrCreatePersonalConversation($mysqli, $current_user_id, $target_user_id);
+                    if ($conversation_id) {
+                        header("Location: conversations.php?conversation_id=" . $conversation_id);
+                        exit;
                     }
+                } else {
+                    $modal_error = "You cannot start a chat with yourself.";
+                    $show_modal_on_load = true;
+                    $modal_to_show = 'newChatModal';
                 }
-                
-                // Send a text message ONLY if no files were uploaded
-                if (!empty($message_body) && !$files_uploaded) {
-                    $stmt_insert = $mysqli->prepare("INSERT INTO messages (conversation_id, sender_id, body, status, reply_to) VALUES (?, ?, ?, 'delivered', ?)");
-                    $stmt_insert->bind_param("iisi", $conversation_id, $current_user_id, $message_body, $reply_to);
-                    $stmt_insert->execute();
-                }
-            }
-        }
-        header("Location: conversations.php?conversation_id=" . $conversation_id); 
-        exit;
-    } 
-    elseif ($action === 'create_channel') {
-        $channel_name = trim($_POST['channel_name'] ?? '');
-        if (!empty($channel_name)) {
-            $mysqli->begin_transaction();
-            try {
-                $stmt_create = $mysqli->prepare("INSERT INTO conversations (name, type, visibility, creator_id) VALUES (?, 'channel', 'public', ?)");
-                $stmt_create->bind_param("si", $channel_name, $current_user_id);
-                $stmt_create->execute();
-                $new_convo_id = $mysqli->insert_id;
-
-                $stmt_add_creator = $mysqli->prepare("INSERT INTO conversation_members (conversation_id, user_id, role) VALUES (?, ?, 'admin')");
-                $stmt_add_creator->bind_param("ii", $new_convo_id, $current_user_id);
-                $stmt_add_creator->execute();
-
-                $mysqli->commit();
-                header("Location: conversations.php?conversation_id=" . $new_convo_id);
-                exit;
-            } catch (Exception $e) {
-                $mysqli->rollback();
-                $modal_error = "Error creating channel. Please try again.";
+            } else {
+                $modal_error = "User not found.";
                 $show_modal_on_load = true;
-                $modal_to_show = 'newChannelModal';
+                $modal_to_show = 'newChatModal';
             }
         } else {
-            $modal_error = "Channel name cannot be empty.";
+            $modal_error = "Public ID cannot be empty.";
             $show_modal_on_load = true;
-            $modal_to_show = 'newChannelModal';
+            $modal_to_show = 'newChatModal';
         }
     }
-    elseif ($action === 'join_channel') {
-        $conversation_id_to_join = (int)$_POST['conversation_id'];
-
-        $stmt_check = $mysqli->prepare("SELECT type, visibility FROM conversations WHERE id = ?");
-        $stmt_check->bind_param("i", $conversation_id_to_join);
-        $stmt_check->execute();
-        $result = $stmt_check->get_result();
-
-        if ($result->num_rows === 1) {
-            $convo = $result->fetch_assoc();
-            if (($convo['type'] === 'channel' || $convo['type'] === 'group') && $convo['visibility'] === 'public') {
-                $stmt_insert = $mysqli->prepare("INSERT INTO conversation_members (conversation_id, user_id, role) VALUES (?, ?, 'member') ON DUPLICATE KEY UPDATE user_id=user_id");
-                $stmt_insert->bind_param("ii", $conversation_id_to_join, $current_user_id);
-                $stmt_insert->execute();
-            }
-        }
-        header("Location: conversations.php?conversation_id=" . $conversation_id_to_join);
-        exit;
-    }
-    elseif ($action === 'create_group') {
-        $group_name = trim($_POST['group_name'] ?? '');
-        $visibility = ($_POST['visibility'] ?? 'public') === 'private' ? 'private' : 'public';
-        $group_members = trim($_POST['group_members'] ?? '');
-
-        if (!empty($group_name)) {
-            $mysqli->begin_transaction();
-            try {
-                $stmt_create = $mysqli->prepare("INSERT INTO conversations (name, type, visibility, creator_id) VALUES (?, 'group', ?, ?)");
-                $stmt_create->bind_param("ssi", $group_name, $visibility, $current_user_id);
-                $stmt_create->execute();
-                $new_group_id = $mysqli->insert_id;
-
-                // Add creator as admin
-                $stmt_add_creator = $mysqli->prepare("INSERT INTO conversation_members (conversation_id, user_id, role) VALUES (?, ?, 'admin')");
-                $stmt_add_creator->bind_param("ii", $new_group_id, $current_user_id);
-                $stmt_add_creator->execute();
-
-                // Add additional members if provided
-                if (!empty($group_members)) {
-                    $public_ids = array_filter(array_map('trim', explode(',', $group_members)));
-                    if (!empty($public_ids)) {
-                        $placeholders = implode(',', array_fill(0, count($public_ids), '?'));
-                        $types = str_repeat('s', count($public_ids));
-                        $stmt_users = $mysqli->prepare("SELECT id FROM users WHERE public_id IN ($placeholders)");
-                        $stmt_users->bind_param($types, ...$public_ids);
-                        $stmt_users->execute();
-                        $result_users = $stmt_users->get_result();
-                        while ($row = $result_users->fetch_assoc()) {
-                            $uid = $row['id'];
-                            if ($uid != $current_user_id) {
-                                $stmt_add = $mysqli->prepare("INSERT INTO conversation_members (conversation_id, user_id, role) VALUES (?, ?, 'member')");
-                                $stmt_add->bind_param("ii", $new_group_id, $uid);
-                                $stmt_add->execute();
-                            }
-                        }
-                    }
-                }
-
-                $mysqli->commit();
-                header("Location: conversations.php?conversation_id=" . $new_group_id);
-                exit;
-            } catch (Exception $e) {
-                $mysqli->rollback();
-                $modal_error = "Error creating group. Please try again.";
-                $show_modal_on_load = true;
-                $modal_to_show = 'newGroupModal';
-            }
-        } else {
-            $modal_error = "Group name cannot be empty.";
-            $show_modal_on_load = true;
-            $modal_to_show = 'newGroupModal';
-        }
-    }
-}
-
-
-// --- 3. DATA FETCHING & PAGE SETUP ---
-$is_conversation_view = isset($_GET['conversation_id']) && is_numeric($_GET['conversation_id']);
-$conversation_id = $is_conversation_view ? (int)$_GET['conversation_id'] : null;
-
-if ($is_conversation_view) {
-    $stmt_mark_read = $mysqli->prepare("UPDATE messages SET status = 'read', read_at = NOW() WHERE conversation_id = ? AND sender_id != ? AND status != 'read'");
-    $stmt_mark_read->bind_param("ii", $conversation_id, $current_user_id); $stmt_mark_read->execute();
-}
-
-$search_term = $_GET['search'] ?? '';
-$conversations = [];
-
-if (!empty($search_term)) {
-    // Search logic remains the same. It's complex but serves a different purpose.
-    $like_term = "%{$search_term}%";
-    $public_id_term = ltrim($search_term, '@');
-
-    $sql_search = "
-        (SELECT c.id, c.type, c.name, (CASE WHEN c.type = 'personal' THEN (SELECT u.username FROM users u JOIN conversation_members cm2 ON u.id = cm2.user_id WHERE cm2.conversation_id = c.id AND cm2.user_id != ?) ELSE c.name END) AS display_name, (SELECT m.body FROM messages m WHERE m.conversation_id = c.id ORDER BY m.sent_at DESC LIMIT 1) AS last_message, 0 as unread_count, 'existing_chat' AS result_type, c.id AS action_id, (SELECT COALESCE(MAX(m.sent_at), c.created_at) FROM messages m WHERE m.conversation_id = c.id) as order_date FROM conversations c JOIN conversation_members cm ON c.id = cm.conversation_id WHERE cm.user_id = ? AND (c.name LIKE ? OR (c.type = 'personal' AND (SELECT u.username FROM users u JOIN conversation_members cm2 ON u.id = cm2.user_id WHERE cm2.conversation_id = c.id AND cm2.user_id != ?) LIKE ?)))
-        UNION
-        (SELECT c.id, c.type, c.name, c.name AS display_name, CONCAT((SELECT COUNT(*) FROM conversation_members WHERE conversation_id = c.id), ' members') AS last_message, 0 as unread_count, 'joinable' AS result_type, c.id AS action_id, c.created_at as order_date FROM conversations c WHERE c.visibility = 'public' AND c.name LIKE ? AND NOT EXISTS (SELECT 1 FROM conversation_members cm_check WHERE cm_check.conversation_id = c.id AND cm_check.user_id = ?))
-        UNION
-        (SELECT u.id, 'personal' as type, u.username as name, u.username as display_name, CONCAT('Start chat with @', u.public_id) as last_message, 0 as unread_count, 'new_chat' as result_type, u.id as action_id, u.created_at as order_date FROM users u WHERE u.id != ? AND (u.username LIKE ? OR u.public_id = ?))
-        ORDER BY order_date DESC";
-    $stmt_search = $mysqli->prepare($sql_search);
-    if ($stmt_search) {
-        $stmt_search->bind_param("iisississs", $current_user_id, $current_user_id, $like_term, $current_user_id, $like_term, $like_term, $current_user_id, $current_user_id, $like_term, $public_id_term);
-        $stmt_search->execute();
-        $conversations = $stmt_search->get_result()->fetch_all(MYSQLI_ASSOC);
-    } else {
-        die("Error preparing search statement: " . $mysqli->error);
-    }
-} else {
-    // --- FIX: N+1 QUERY PROBLEM ---
-    // This new, optimized query replaces the old, slow one.
-    // It fetches all conversation list data (last message, unread count, etc.) in a single, efficient operation.
-    // NOTE: This requires MySQL 8+ or MariaDB 10.2+ due to the ROW_NUMBER() window function.
-    $sql_chats_optimized = "
-        SELECT
-            c.id, c.type, c.name,
-            (CASE WHEN c.type = 'personal' THEN u_other.username ELSE c.name END) AS display_name,
-            last_msg.body AS last_message,
-            COALESCE(unread.unread_count, 0) AS unread_count,
-            'existing_chat' as result_type,
-            c.id as action_id
-        FROM conversation_members cm
-        JOIN conversations c ON cm.conversation_id = c.id
-        LEFT JOIN conversation_members cm_other ON c.id = cm_other.conversation_id AND cm_other.user_id != ?
-        LEFT JOIN users u_other ON cm_other.user_id = u_other.id AND c.type = 'personal'
-        LEFT JOIN (
-            SELECT conversation_id, body, sent_at
-            FROM (
-                SELECT conversation_id, body, sent_at,
-                    ROW_NUMBER() OVER(PARTITION BY conversation_id ORDER BY sent_at DESC) as rn
-                FROM messages
-            ) m
-            WHERE rn = 1
-        ) last_msg ON c.id = last_msg.conversation_id
-        LEFT JOIN (
-            SELECT conversation_id, COUNT(*) as unread_count
-            FROM messages
-            WHERE status != 'read' AND sender_id != ?
-            GROUP BY conversation_id
-        ) unread ON c.id = unread.conversation_id
-        WHERE cm.user_id = ?
-        GROUP BY c.id
-        ORDER BY COALESCE(last_msg.sent_at, c.created_at) DESC
-    ";
-    
-    $stmt_chats = $mysqli->prepare($sql_chats_optimized);
-    // Bind the current user ID three times as required by the new query
-    $stmt_chats->bind_param("iii", $current_user_id, $current_user_id, $current_user_id);
-    $stmt_chats->execute();
-    $conversations = $stmt_chats->get_result()->fetch_all(MYSQLI_ASSOC);
-    // --- END FIX ---
-}
-
-$messages = []; $current_conversation = null; $last_message_id = 0; $is_member = false; $other_user_id = null;
-if ($is_conversation_view) {
-    // This logic for fetching a single conversation's details is fine and remains unchanged.
-    $sql_verify = "SELECT c.id, c.type, c.name, c.visibility, c.creator_id, (CASE WHEN c.type = 'personal' THEN (SELECT u.username FROM users u JOIN conversation_members cm2 ON u.id = cm2.user_id WHERE cm2.conversation_id = c.id AND cm2.user_id != ?) ELSE c.name END) AS display_name FROM conversations c WHERE c.id = ?";
-    $stmt_verify = $mysqli->prepare($sql_verify); $stmt_verify->bind_param("ii", $current_user_id, $conversation_id); $stmt_verify->execute(); $result_verify = $stmt_verify->get_result();
-    if ($result_verify->num_rows === 1) {
-        $current_conversation = $result_verify->fetch_assoc();
-        
-        if ($current_conversation['type'] === 'personal') {
-            $stmt_other_user = $mysqli->prepare("SELECT user_id FROM conversation_members WHERE conversation_id = ? AND user_id != ?");
-            $stmt_other_user->bind_param("ii", $conversation_id, $current_user_id);
-            $stmt_other_user->execute();
-            if ($other_user_row = $stmt_other_user->get_result()->fetch_assoc()) { $other_user_id = $other_user_row['user_id']; }
-        }
-
-        $stmt_check_member = $mysqli->prepare("SELECT 1 FROM conversation_members WHERE conversation_id = ? AND user_id = ?");
-        $stmt_check_member->bind_param("ii", $conversation_id, $current_user_id); $stmt_check_member->execute(); $is_member = $stmt_check_member->get_result()->num_rows > 0;
-        
-        if($is_member || ($current_conversation['type'] === 'group' && $current_conversation['visibility'] === 'public') || ($current_conversation['type'] === 'channel' && $current_conversation['visibility'] === 'public')) {
-            $sql_messages = "
-                SELECT
-                    m.id, m.body, m.status, m.sent_at, m.read_at, m.message_type, 
-                    m.file_path, m.reply_to, u.username AS sender_name, m.sender_id,
-                    GROUP_CONCAT(DISTINCT CONCAT(mr.reaction_emoji, ':', (SELECT COUNT(*) FROM message_reactions WHERE message_id = m.id AND reaction_emoji = mr.reaction_emoji))) as reactions
-                FROM messages m
-                JOIN users u ON m.sender_id = u.id
-                LEFT JOIN message_reactions mr ON m.id = mr.message_id
-                WHERE m.conversation_id = ?
-                GROUP BY m.id
-                ORDER BY m.sent_at ASC
-            ";
-            
-            $stmt_messages = $mysqli->prepare($sql_messages); 
-            if ($stmt_messages === false) { die("Error preparing statement: " . $mysqli->error); }
-            $stmt_messages->bind_param("i", $conversation_id); $stmt_messages->execute(); 
-            $messages = $stmt_messages->get_result()->fetch_all(MYSQLI_ASSOC);
-            if (!empty($messages)) { $last_message_id = end($messages)['id']; }
-        }
-    } else { header("Location: conversations.php"); exit; }
+    // ...existing code...
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
