@@ -708,3 +708,72 @@ emoji-picker {
         height: 100%;
     }
 }
+
+/* --- MOBILE CHAT PANEL FIXES --- */
+@media (max-width: 767px) {
+    #message-panel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        z-index: 200;
+        background-color: var(--bg-main);
+    }
+    .msg-header {
+        padding: 0.5rem 0.5rem;
+        font-size: 1rem;
+    }
+    #msg-body {
+        padding: 0.5rem;
+        font-size: 0.95rem;
+        min-height: 0;
+        max-height: 60vh;
+    }
+    .msg-footer {
+        padding: 0.5rem;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--bg-secondary);
+        z-index: 210;
+        width: 100vw;
+    }
+    .msg-form-inner {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .msg-input {
+        font-size: 1rem;
+        padding: 0.6rem 1rem;
+        border-radius: 16px;
+        margin: 0 0.25rem;
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+    .send-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem;
+        margin-left: 0.25rem;
+    }
+    .file-preview-container {
+        max-width: 100vw;
+        overflow-x: auto;
+        padding: 4px;
+        gap: 6px;
+    }
+    .file-preview-item {
+        width: 48px;
+        height: 48px;
+    }
+    .file-preview-img {
+        border-radius: 4px;
+    }
+}
