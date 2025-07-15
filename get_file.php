@@ -8,8 +8,10 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 }
 $current_user_id = (int)$_SESSION['user_id'];
 
-// Get the requested file name from the URL
-$file_name = $_GET['file'] ?? '';
+// Get and decode the requested file name from the URL
+$file_param = $_GET['file'] ?? '';
+$file_param = urldecode($file_param);
+$file_name = basename($file_param);
 
 // Security: Prevent directory traversal attacks
 if (strpos($file_name, '..') !== false || strpos($file_name, '/') !== false || empty($file_name)) {
@@ -57,19 +59,20 @@ if (!$is_member && !$is_public_group) {
 }
 
 // If all checks pass, serve the file
-if (file_exists($file_path_on_server)) {
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mime_type = finfo_file($finfo, $file_path_on_server);
-    finfo_close($finfo);
-
-    header('Content-Type: ' . $mime_type);
-    header('Content-Length: ' . filesize($file_path_on_server));
-    header('Content-Disposition: inline; filename="' . basename($file_path_on_server) . '"');
-    
-    readfile($file_path_on_server);
-    exit;
-} else {
+$full_path = __DIR__ . '/uploads/' . $file_name;
+if (!file_exists($full_path)) {
     http_response_code(404);
-    exit('File not found on server.');
+    exit('File not found.');
 }
+
+$finfo = finfo_open(FILEINFO_MIME_TYPE);
+$mime_type = finfo_file($finfo, $full_path);
+finfo_close($finfo);
+
+header('Content-Type: ' . $mime_type);
+header('Content-Length: ' . filesize($full_path));
+header('Content-Disposition: inline; filename="' . basename($full_path) . '"');
+
+readfile($full_path);
+exit;
 ?>

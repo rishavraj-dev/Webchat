@@ -571,15 +571,15 @@ if ($is_conversation_view) {
                             <?php if ($msg['file_path']): 
                                 $file_basename = basename($msg['file_path']);
                                 if ($msg['message_type'] === 'image'): ?>
-                                    <a href="get_file.php?file=<?php echo htmlspecialchars($file_basename); ?>" target="_blank">
-                                        <img src="get_file.php?file=<?php echo htmlspecialchars($file_basename); ?>" style="max-width:100%; border-radius:8px; margin-top:0.5rem; margin-bottom:0.5rem;">
+                                    <a href="get_file.php?file=<?php echo rawurlencode($file_basename); ?>" target="_blank">
+                                        <img src="get_file.php?file=<?php echo rawurlencode($file_basename); ?>" style="max-width:100%; border-radius:8px; margin-top:0.5rem; margin-bottom:0.5rem;">
                                     </a>
                                 <?php elseif ($msg['message_type'] === 'pdf'): ?>
                                     <div class="pdf-card">
                                         <div class="pdf-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
                                         <div class="pdf-details">
-                                            <div class="pdf-filename"><?php echo htmlspecialchars($file_basename); ?></div>
-                                            <a href="get_file.php?file=<?php echo htmlspecialchars($file_basename); ?>" target="_blank" class="pdf-view-btn">View PDF</a>
+                                            <div class="pdf-filename"><?php echo rawurlencode($file_basename); ?></div>
+                                            <a href="get_file.php?file=<?php echo rawurlencode($file_basename); ?>" target="_blank" class="pdf-view-btn">View PDF</a>
                                         </div>
                                     </div>
                                 <?php elseif ($msg['message_type'] === 'video'): ?>
@@ -587,9 +587,9 @@ if ($is_conversation_view) {
                                         <video controls style="max-width:100%;border-radius:12px;background:#222;"><source src="get_file.php?file=<?php echo htmlspecialchars($file_basename); ?>" type="video/mp4">Your browser does not support the video tag.</video>
                                     </div>
                                 <?php else: ?>
-                                    <a href="get_file.php?file=<?php echo htmlspecialchars($file_basename); ?>" target="_blank" style="display:inline-block;">
+                                    <a href="get_file.php?file=<?php echo rawurlencode($file_basename); ?>" target="_blank" style="display:inline-block;">
                                         <span style="display:inline-block;vertical-align:middle;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
-                                        <span style="margin-left:8px;"><?php echo htmlspecialchars($file_basename); ?></span>
+                                        <span style="margin-left:8px;"><?php echo rawurlencode($file_basename); ?></span>
                                     </a>
                                 <?php endif; ?>
                             <?php endif; ?>
@@ -781,7 +781,7 @@ if ($is_conversation_view) {
             let contentHtml = '';
             if (msg.file_path) {
                 const fileName = msg.file_path.split('/').pop();
-                const safeFileName = escapeHtml(fileName);
+                const safeFileName = encodeURIComponent(fileName);
                 if (msg.message_type === 'image') {
                     contentHtml += `<a href="get_file.php?file=${safeFileName}" target="_blank"><img src="get_file.php?file=${safeFileName}" style="max-width:100%; border-radius:8px; margin-top:0.5rem; margin-bottom:0.5rem;"></a>`;
                 } else if (msg.message_type === 'pdf') {
@@ -916,6 +916,7 @@ if ($is_conversation_view) {
             const body = msgPanel.querySelector('#msg-body');
             const footer = msgPanel.querySelector('.msg-footer');
             if (!header || !body) return;
+           
             if (!isManagementViewActive) { originalMessagePanelState = { header: header.innerHTML, body: body.innerHTML, footer: footer?.innerHTML }; }
             isManagementViewActive = true;
             body.innerHTML = '<div class="placeholder" style="display:flex;">Loading...</div>';
