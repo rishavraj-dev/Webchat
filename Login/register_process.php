@@ -1,16 +1,20 @@
 <?php
 // Start the session to store messages
 session_start();
+// Make sure you have your database connection file
 require_once 'config.php';
 
+// --- FIXED: Updated redirect functions to use 'message' and 'message_type' ---
 function redirect_with_error($message) {
-    $_SESSION['error_message'] = $message;
+    $_SESSION['message'] = $message;
+    $_SESSION['message_type'] = 'error'; // Set type to 'error' for styling
     header("Location: register.php");
     exit();
 }
 
 function redirect_with_success($message) {
-    $_SESSION['success_message'] = $message;
+    $_SESSION['message'] = $message;
+    $_SESSION['message_type'] = 'success'; // Set type to 'success' for styling
     header("Location: register.php");
     exit();
 }
@@ -30,6 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     if ($password !== $confirm_password) {
         redirect_with_error("Passwords do not match.");
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        redirect_with_error("Invalid email format.");
     }
 
     // --- 3. Age Verification (Must be 13 or older) ---
@@ -72,6 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($stmt_insert->execute()) {
         redirect_with_success("Registration successful! You can now log in.");
     } else {
+        // For debugging, you might want to log the actual error: error_log($stmt_insert->error);
         redirect_with_error("An unexpected error occurred. Please try again.");
     }
 
