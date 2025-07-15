@@ -1,5 +1,18 @@
+<?php
+// We must start the session to access session variables
+session_start();
+
+// Check if the user is logged in by looking for your session variable (e.g., 'user_id')
+if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+    // If they are logged in, redirect them to the conversations page
+    header("Location: conversations.php");
+    // It's crucial to exit the script after a redirect to prevent the rest of the page from loading
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
+<!-- The rest of your HTML code goes here -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
