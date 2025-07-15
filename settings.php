@@ -15,7 +15,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // --- LOGIC TO UPDATE PROFILE INFO (Name & Public ID) ---
     if ($action === 'update_profile') {
-        // ... (This logic is unchanged)
+        $new_username = trim($_POST['username'] ?? '');
+        $new_public_id = trim($_POST['public_id'] ?? '');
+
+        // Basic validation
+        if (empty($new_username) || empty($new_public_id)) {
+            $message = "Display Name and Public ID cannot be empty.";
+            $message_type = 'error';
+        } else {
+            // Check if public ID is already taken by another user
+            $stmt_check = $mysqli->prepare("SELECT id FROM users WHERE public_id = ? AND id != ?");
+            $stmt_check->bind_param("si", $new_public_id, $current_user_id);
+            $stmt_check->execute();
+            $result_check = $stmt_check->get_result();
+            if ($result_check->num_rows > 0) {
+                $message = "This Public ID is already taken.";
+                $message_type = 'error';
+            } else {
+                // Update user's profile
+                $stmt_update = $mysqli->prepare("UPDATE users SET username = ?, public_id = ? WHERE id = ?");
+                $stmt_update->bind_param("ssi", $new_username, $new_public_id, $current_user_id);
+                if ($stmt_update->execute()) {
+                    $message = "Profile updated successfully!";
+                    $message_type = 'success';
+                } else {
+                    $message = "Failed to update profile.";
+                    $message_type = 'error';
+                }
+                $stmt_update->close();
+            }
+            $stmt_check->close();
+        }
     }
 
     // --- LOGIC TO UPDATE PASSWORD ---
