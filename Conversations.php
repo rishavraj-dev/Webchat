@@ -102,7 +102,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'start_dm' && isset($_GET['use
 $modal_error = ''; $show_modal_on_load = false; $modal_to_show = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // POST handling logic remains the same...
     $action = $_POST['action'] ?? '';
 
     if ($action === 'send_message_or_file') {
@@ -113,9 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt_verify = $mysqli->prepare("SELECT role FROM conversation_members WHERE conversation_id = ? AND user_id = ?");
             $stmt_verify->bind_param("ii", $conversation_id, $current_user_id); $stmt_verify->execute();
             if ($stmt_verify->get_result()->num_rows === 1) {
-                // This condition is now reliable
                 $files_uploaded = isset($_FILES['file_upload']) && $_FILES['file_upload']['error'][0] !== UPLOAD_ERR_NO_FILE;
-                
                 if ($files_uploaded) {
                     $upload_dir = 'uploads/'; if (!is_dir($upload_dir)) mkdir($upload_dir, 0755, true);
                     $caption_used = false;
@@ -124,9 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $tmp_name = $_FILES['file_upload']['tmp_name'][$i]; $type = mime_content_type($tmp_name);
                         $filename = uniqid() . '-' . basename($name); $destination = $upload_dir . $filename;
                         if (move_uploaded_file($tmp_name, $destination)) {
-                            $msg_type = strpos($type, 'image/') === 0 ? 'image' :
-                                        (strpos($type, 'pdf') !== false ? 'pdf' :
-                                        (strpos($type, 'video/') === 0 ? 'video' : 'file'));
+                            $msg_type = strpos($type, 'image/') === 0 ? 'image' : (strpos($type, 'pdf') !== false ? 'pdf' : (strpos($type, 'video/') === 0 ? 'video' : 'file'));
                             $current_body = (!$caption_used && !empty($message_body)) ? $message_body : null;
                             $caption_used = true;
                             $stmt_insert = $mysqli->prepare("INSERT INTO messages (conversation_id, sender_id, message_type, body, file_path, status, reply_to) VALUES (?, ?, ?, ?, ?, 'delivered', ?)");
@@ -135,8 +130,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                     }
                 }
-                
-                // Send a text message ONLY if no files were uploaded
                 if (!empty($message_body) && !$files_uploaded) {
                     $stmt_insert = $mysqli->prepare("INSERT INTO messages (conversation_id, sender_id, body, status, reply_to) VALUES (?, ?, ?, 'delivered', ?)");
                     $stmt_insert->bind_param("iisi", $conversation_id, $current_user_id, $message_body, $reply_to);
@@ -156,11 +149,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt_create->bind_param("si", $channel_name, $current_user_id);
                 $stmt_create->execute();
                 $new_convo_id = $mysqli->insert_id;
-
                 $stmt_add_creator = $mysqli->prepare("INSERT INTO conversation_members (conversation_id, user_id, role) VALUES (?, ?, 'admin')");
                 $stmt_add_creator->bind_param("ii", $new_convo_id, $current_user_id);
                 $stmt_add_creator->execute();
-
                 $mysqli->commit();
                 header("Location: conversations.php?conversation_id=" . $new_convo_id);
                 exit;
@@ -178,12 +169,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     elseif ($action === 'join_channel') {
         $conversation_id_to_join = (int)$_POST['conversation_id'];
-
         $stmt_check = $mysqli->prepare("SELECT type, visibility FROM conversations WHERE id = ?");
         $stmt_check->bind_param("i", $conversation_id_to_join);
         $stmt_check->execute();
         $result = $stmt_check->get_result();
-
         if ($result->num_rows === 1) {
             $convo = $result->fetch_assoc();
             if (($convo['type'] === 'channel' || $convo['type'] === 'group') && $convo['visibility'] === 'public') {
@@ -199,7 +188,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $group_name = trim($_POST['group_name'] ?? '');
         $visibility = ($_POST['visibility'] ?? 'public') === 'private' ? 'private' : 'public';
         $group_members = trim($_POST['group_members'] ?? '');
-
         if (!empty($group_name)) {
             $mysqli->begin_transaction();
             try {
@@ -207,13 +195,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt_create->bind_param("ssi", $group_name, $visibility, $current_user_id);
                 $stmt_create->execute();
                 $new_group_id = $mysqli->insert_id;
-
-                // Add creator as admin
                 $stmt_add_creator = $mysqli->prepare("INSERT INTO conversation_members (conversation_id, user_id, role) VALUES (?, ?, 'admin')");
                 $stmt_add_creator->bind_param("ii", $new_group_id, $current_user_id);
                 $stmt_add_creator->execute();
-
-                // Add additional members if provided
                 if (!empty($group_members)) {
                     $public_ids = array_filter(array_map('trim', explode(',', $group_members)));
                     if (!empty($public_ids)) {
@@ -233,7 +217,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                     }
                 }
-
                 $mysqli->commit();
                 header("Location: conversations.php?conversation_id=" . $new_group_id);
                 exit;
@@ -249,18 +232,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $modal_to_show = 'newGroupModal';
         }
     }
-    // --- FIX: ADDED LOGIC TO HANDLE STARTING A NEW CHAT FROM THE MODAL ---
+    // --- FIX: This block handles DBs where the '@' is stored in the public_id ---
     elseif ($action === 'start_chat') {
-        $public_id = trim($_POST['public_id'] ?? '');
-        // Remove '@' if present
-        if (strpos($public_id, '@') === 0) {
-            $public_id = substr($public_id, 1);
-        }
+        $public_id_input = trim($_POST['public_id'] ?? '');
 
-        if (!empty($public_id)) {
-            // Find the user ID based on the public ID
-            $stmt_find_user = $mysqli->prepare("SELECT id FROM users WHERE public_id = ? AND id != ?");
-            $stmt_find_user->bind_param("si", $public_id, $current_user_id);
+        if (!empty($public_id_input)) {
+            // --- MODIFIED LOGIC: Ensure the public ID ALWAYS starts with '@' before searching ---
+            $public_id_to_search = '';
+            if (strpos($public_id_input, '@') === 0) {
+                // If it already has '@', use it as is
+                $public_id_to_search = $public_id_input;
+            } else {
+                // If it's missing, add it
+                $public_id_to_search = '@' . $public_id_input;
+            }
+
+            // The case-insensitive search is still a good idea for robustness
+            $stmt_find_user = $mysqli->prepare("SELECT id FROM users WHERE LOWER(public_id) = LOWER(?) AND id != ?");
+            $stmt_find_user->bind_param("si", $public_id_to_search, $current_user_id);
             $stmt_find_user->execute();
             $result_user = $stmt_find_user->get_result();
 
@@ -272,13 +261,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     header("Location: conversations.php?conversation_id=" . $conversation_id);
                     exit;
                 } else {
-                    // Handle potential DB error from the creation function
                     $modal_error = "A database error occurred while creating the chat.";
                     $show_modal_on_load = true;
                     $modal_to_show = 'newChatModal';
                 }
             } else {
-                // User not found
+                // This error will now be accurate
                 $modal_error = "User with that Public ID was not found.";
                 $show_modal_on_load = true;
                 $modal_to_show = 'newChatModal';
@@ -327,7 +315,6 @@ if (!empty($search_term)) {
 } else {
     // --- FIX: N+1 QUERY PROBLEM ---
     // This new, optimized query replaces the old, slow one.
-    // It fetches all conversation list data (last message, unread count, etc.) in a single, efficient operation.
     // NOTE: This requires MySQL 8+ or MariaDB 10.2+ due to the ROW_NUMBER() window function.
     $sql_chats_optimized = "
         SELECT
@@ -362,7 +349,6 @@ if (!empty($search_term)) {
     ";
     
     $stmt_chats = $mysqli->prepare($sql_chats_optimized);
-    // Bind the current user ID three times as required by the new query
     $stmt_chats->bind_param("iii", $current_user_id, $current_user_id, $current_user_id);
     $stmt_chats->execute();
     $conversations = $stmt_chats->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -371,7 +357,6 @@ if (!empty($search_term)) {
 
 $messages = []; $current_conversation = null; $last_message_id = 0; $is_member = false; $other_user_id = null;
 if ($is_conversation_view) {
-    // This logic for fetching a single conversation's details is fine and remains unchanged.
     $sql_verify = "SELECT c.id, c.type, c.name, c.visibility, c.creator_id, (CASE WHEN c.type = 'personal' THEN (SELECT u.username FROM users u JOIN conversation_members cm2 ON u.id = cm2.user_id WHERE cm2.conversation_id = c.id AND cm2.user_id != ?) ELSE c.name END) AS display_name FROM conversations c WHERE c.id = ?";
     $stmt_verify = $mysqli->prepare($sql_verify); $stmt_verify->bind_param("ii", $current_user_id, $conversation_id); $stmt_verify->execute(); $result_verify = $stmt_verify->get_result();
     if ($result_verify->num_rows === 1) {
@@ -673,6 +658,7 @@ if ($is_conversation_view) {
     <!-- Context Menu and Forward Modal are unchanged -->
     <div id="msgContextMenu" style="display:none; position:absolute; z-index:9999; background:#232f3e; color:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.2); min-width:150px; padding: 4px;"><div id="ctxReply" class="ctx-item">Reply</div><div id="ctxInfo" class="ctx-item">Message Info</div><div id="ctxReact" class="ctx-item">React<span class="react-emoji" data-emoji="👍">👍</span><span class="react-emoji" data-emoji="❤️">❤️</span><span class="react-emoji" data-emoji="😂">😂</span><span class="react-emoji" data-emoji="😮">😮</span><span class="react-emoji" data-emoji="😢">😢</span><span class="react-emoji" data-emoji="🙏">🙏</span></div><style>.ctx-item{padding:8px 12px; cursor:pointer; border-radius:4px; display:flex; align-items:center; gap:8px;} .ctx-item:hover{background:var(--accent-blue);} .react-emoji{font-size:1.2em;cursor:pointer;padding:2px;border-radius:50%;} .react-emoji:hover{background:rgba(255,255,255,0.2);}</style><div id="ctxDelete" class="ctx-item" style="color: var(--danger-text);">Delete</div></div>
     <div id="forwardModal" class="modal-overlay"><div class="modal-content" style="max-width:350px;"><h2>Forward Message To...</h2><div id="forwardList" style="text-align:left; margin:1em 0;max-height:300px;overflow-y:auto;"></div><button type="button" class="close-modal-btn" style="background:#4b5563;width:100%;padding:0.5em;border-radius:8px;">Cancel</button></div></div>
+
 <script>
     // --- START: CRITICAL FILE UPLOAD FIX ---
     let selectedFilesStore = [];
