@@ -5,12 +5,12 @@ require_once 'config.php';
 // The maximum number of devices a user can be logged into.
 define('MAX_SESSIONS', 2);
 
-// Function to redirect back to login with an error
-function redirect_with_error($message) {
+// Function to redirect back to login or other pages with an error/message
+function redirect_with_message($location, $message, $type = 'error') {
     session_start();
     $_SESSION['message'] = $message;
-    $_SESSION['message_type'] = 'error';
-    header("Location: login.php");
+    $_SESSION['message_type'] = $type;
+    header("Location: $location");
     exit();
 }
 
@@ -19,10 +19,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'];
 
     if (empty($identifier) || empty($password)) {
-        redirect_with_error("All fields are required.");
+        redirect_with_message('login.php', 'All fields are required.');
     }
 
-    $sql = "SELECT id, username, public_id, password_hash FROM users WHERE public_id = ? OR email = ?";
+    // --- MODIFIED PART 1: Added 'verified' to the SQL query ---
+    $sql = "SELECT id, username, public_id, password_hash, verified FROM users WHERE public_id = ? OR email = ?";
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param("ss", $identifier, $identifier);
     $stmt->execute();
@@ -32,7 +33,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $user = $result->fetch_assoc();
 
         if (password_verify($password, $user['password_hash'])) {
-            // --- LOGIN SUCCESS - NOW MANAGE SESSIONS ---
+            // --- MODIFIED PART 2: Check the 'verified' status ---
+            if ($user['verified'] === 'no') {
+                // If the user is not verified, redirect them to the verification page.
+                redirect_with_message('verify.php', 'Please verify your email to continue using our services.');
+            }
+            
+            // --- LOGIN SUCCESS - NOW MANAGE SESSIONS (if verified) ---
             
             $user_id = $user['id'];
 
@@ -45,16 +52,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             // 2. If the user is at or over the limit, delete the oldest one.
             if ($active_session_count >= MAX_SESSIONS) {
-                // Find the ID of the oldest session record for this user and delete it.
                 $stmt_delete_oldest = $mysqli->prepare("DELETE FROM active_sessions WHERE user_id = ? ORDER BY last_login ASC LIMIT 1");
                 $stmt_delete_oldest->bind_param("i", $user_id);
                 $stmt_delete_oldest->execute();
             }
 
             // 3. Now it's safe to create a new session.
-            // We must start the session *before* we can get its ID.
             session_start();
-            session_regenerate_id(true); // Create a new, clean session ID
+            session_regenerate_id(true); 
 
             // 4. Store the new session in our database.
             $new_session_id = session_id();
@@ -76,10 +81,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             exit();
 
         } else {
-            redirect_with_error("Invalid credentials.");
+            redirect_with_message('login.php', 'Invalid credentials.');
         }
     } else {
-        redirect_with_error("Invalid credentials.");
+        redirect_with_message('login.php', 'Invalid credentials.');
     }
 } else {
     header("Location: login.php");
