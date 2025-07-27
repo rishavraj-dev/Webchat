@@ -116,7 +116,7 @@ session_start();
                     </button>
                 </div>
                 <div class="forgot-password">
-                    <a href="#" class="link">Forgot Password?</a>
+                    <a href="forgot_password.php" class="link">Forgot Password?</a>
                 </div>
             </div>
             <button type="submit" class="submit-btn">Sign In</button>
