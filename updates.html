@@ -14,354 +14,299 @@
             --text-gray-200: #e5e7eb;
             --text-gray-300: #d1d5db;
             --text-gray-400: #9ca3af;
-            --text-blue-100: #dbeafe;
             --text-blue-200: #bfdbfe;
-            --text-blue-300: #93c5fd;
             --text-green-100: #dcfce7;
             --text-green-200: #a7f3d0;
-            --text-green-300: #6ee7b7;
             --text-purple-100: #ede9fe;
-            --text-purple-200: #ddd6fe;
             --text-purple-300: #c4b5fd;
             --bg-gray-700: #374151;
             --bg-gray-800: #1f2937;
             --bg-blue-600: #2563eb;
-            --bg-blue-700: #1d4ed8;
-            --bg-green-700: #047857;
-            --bg-purple-700: #7e22ce;
             --border-blue-500: #3b82f6;
+            --bg-green-700: #047857;
             --border-green-500: #10b981;
-            --border-purple-500: #a855f7;
-            --border-gray-600: #4b5563;
-            --bg-indigo-700: #4338ca; /* New color for Key Highlights */
-            --border-indigo-500: #6366f1; /* New border color for Key Highlights */
-            --text-indigo-100: #e0e7ff; /* New text color for Key Highlights list */
-            --text-indigo-200: #c7d2fe; /* New text color for Key Highlights title icon */
+            --bg-feature-purple-700: #7e22ce;
+            --border-feature-purple-500: #a855f7;
+            --bg-security-orange-700: #c2410c;
+            --border-security-orange-500: #f97316;
+            --text-security-orange-100: #fff7ed;
+            --text-security-orange-300: #fdba74;
+            --bg-note-yellow-700: #a16207;
+            --text-note-yellow-100: #fefce8;
         }
-
-        * {
-            box-sizing: border-box;
-        }
-
+        * { box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
             margin: 0;
-            padding: 0; /* Removed p-4 to allow full width */
+            padding: 0;
             background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             color: var(--text-white);
         }
-
         .main-container {
             background-color: var(--bg-gray-800);
-            padding: 2rem; /* p-8 */
-            border-radius: 0.75rem; /* rounded-xl */
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); /* shadow-2xl */
-            width: 100%; /* Changed to full width */
-            max-width: none; /* Removed max-w-4xl */
+            padding: 0;
+            border-radius: 0.75rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: none;
             text-align: center;
-            transition: transform 0.3s ease-in-out; /* transition-transform duration-300 ease-in-out */
         }
-
-        .main-container:hover {
-            transform: scale(1.01); /* hover:scale-105 adjusted slightly for full page */
-        }
-
         .main-title {
-            font-size: 3rem; /* text-5xl */
-            font-weight: 800; /* font-extrabold */
+            font-size: 3rem;
+            font-weight: 800;
             color: var(--text-white);
-            margin-bottom: 1rem; /* mb-4 */
-            line-height: 1.25; /* leading-tight */
+            margin-bottom: 1rem;
+            padding: 2rem 1rem 0;
         }
-
         .subtitle {
-            font-size: 1.125rem; /* text-lg */
+            font-size: 1.125rem;
             color: var(--text-blue-200);
-            margin-bottom: 2.5rem; /* mb-10 */
+            margin-bottom: 2.5rem;
+            padding: 0 1rem;
         }
-
         .section-spacing {
-            margin-bottom: 3rem; /* mb-12 */
+            margin-bottom: 3rem;
+            padding: 0 1rem;
         }
-
         .section-title {
-            font-size: 2.25rem; /* text-3xl */
-            font-weight: 700; /* font-bold */
+            font-size: 2.25rem;
+            font-weight: 700;
             color: var(--text-white);
-            margin-bottom: 1.5rem; /* mb-6 */
-            text-align: center;
+            margin-bottom: 1.5rem;
         }
-
         .version-card {
-            padding: 1.5rem; /* p-6 */
-            border-radius: 0.5rem; /* rounded-lg */
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); /* shadow-md */
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
             text-align: left;
-            transition: transform 0.2s ease-in-out; /* hover:scale-102 transition-transform duration-200 */
+            transition: transform 0.2s ease-in-out;
         }
-
-        .version-card:hover {
-            transform: scale(1.01);
-        }
-
+        .version-card:hover { transform: scale(1.005); }
         .version-card-title {
-            font-size: 1.5rem; /* text-2xl */
-            font-weight: 700; /* font-bold */
+            font-size: 1.5rem;
+            font-weight: 700;
             color: var(--text-white);
-            margin-bottom: 0.5rem; /* mb-2 */
+            margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
         }
-
-        .version-date {
-            font-size: 1.125rem; /* text-lg */
-            margin-left: 0.75rem; /* ml-3 */
-        }
-
-        .version-list {
-            list-style-type: disc;
-            list-style-position: inside;
-            margin-top: 0.5rem; /* space-y-2 */
-        }
-
-        .version-list li {
-            margin-bottom: 0.5rem;
-            line-height: 1.5;
-        }
-
-        .version-list b {
-            font-weight: 700; /* font-bold */
-        }
-
-        /* Specific Version Card Colors */
-        .card-blue {
-            background-color: var(--bg-blue-700);
-            border: 2px solid var(--border-blue-500);
-            color: var(--text-blue-100);
-        }
-        .card-blue .version-date {
-            color: var(--text-blue-300);
-        }
-
-        .card-purple {
-            background-color: var(--bg-purple-700);
-            border: 2px solid var(--border-purple-500);
-            color: var(--text-purple-100);
-        }
-        .card-purple .version-date {
-            color: var(--text-purple-300);
-        }
-
-        .card-green {
-            background-color: var(--bg-green-700);
-            border: 2px solid var(--border-green-500);
-            color: var(--text-green-100);
-        }
-        .card-green .version-date {
-            color: var(--text-green-200);
-        }
-
-        .card-gray {
-            background-color: var(--bg-gray-700);
-            color: var(--text-gray-300);
-        }
-        .card-gray .version-date {
-            color: var(--text-gray-400);
-        }
-
-        /* New styles for Key Highlights section */
-        .card-indigo {
-            background-color: var(--bg-indigo-700);
-            border: 2px solid var(--border-indigo-500);
-            color: var(--text-indigo-100);
-        }
-        .card-indigo .version-date {
-            color: var(--text-indigo-200);
-        }
-
-        /* Collapsible content styles */
-        .collapsible-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-        }
-
-        .collapsible-card.active .collapsible-content {
-            max-height: 500px; /* Adjust as needed for content height */
-        }
-
-        .collapsible-card .toggle-icon {
-            transform: rotate(0deg);
-            transition: transform 0.2s ease-in-out;
-        }
-
-        .collapsible-card.active .toggle-icon {
-            transform: rotate(180deg);
-        }
-
-        .planned-features-section {
-            border-top: 2px dashed var(--border-gray-600);
-            padding-top: 2rem; /* pt-8 */
-        }
-
+        .version-date { font-size: 1.125rem; margin-left: 0.75rem; }
+        .version-list { list-style-type: disc; list-style-position: inside; margin-top: 0.5rem; padding-left: 0.5rem; }
+        .version-list li { margin-bottom: 0.5rem; line-height: 1.5; }
+        .version-list b { font-weight: 700; }
+        .card-green { background-color: var(--bg-green-700); border: 2px solid var(--border-green-500); color: var(--text-green-100); }
+        .card-green .version-date { color: var(--text-green-200); }
+        .card-orange { background-color: var(--bg-security-orange-700); border: 2px solid var(--border-security-orange-500); color: var(--text-security-orange-100); }
+        .card-orange .version-date { color: var(--text-security-orange-300); }
+        .card-purple { background-color: var(--bg-feature-purple-700); border: 2px solid var(--border-feature-purple-500); color: var(--text-feature-purple-100); }
+        .card-purple .version-date { color: var(--text-purple-300); }
+        .card-gray { background-color: var(--bg-gray-700); color: var(--text-gray-300); }
+        .card-gray .version-date { color: var(--text-gray-400); }
+        .note-section { background-color: var(--bg-note-yellow-700); color: var(--text-note-yellow-100); border: 2px solid var(--border-security-orange-500); }
+        .collapsible-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .collapsible-card.active .collapsible-content { max-height: 1000px; }
+        .collapsible-card .toggle-icon { transform: rotate(0deg); transition: transform 0.2s ease-in-out; }
+        .collapsible-card.active .toggle-icon { transform: rotate(180deg); }
         .back-button {
             display: inline-block;
             background-color: var(--bg-blue-600);
             color: var(--text-white);
-            padding: 1rem 2rem; /* px-8 py-4 */
-            border-radius: 0.5rem; /* rounded-lg */
-            font-weight: 600; /* font-semibold */
-            font-size: 1.25rem; /* text-xl */
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 1.25rem;
             text-decoration: none;
-            transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* transition-colors duration-300 ease-in-out shadow-lg */
-            margin-top: 1.5rem; /* mt-6 */
+            transition: all 0.3s ease-in-out;
+            margin-top: 1.5rem;
+            margin-bottom: 2rem;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
         }
-
-        .back-button:hover {
-            background-color: #1e40af; /* hover:bg-blue-700 */
-            transform: translateY(-2px);
-            box-shadow: 0 15px 20px -5px rgba(0, 0, 0, 0.2), 0 6px 8px -6px rgba(0, 0, 0, 0.15);
+        .back-button:hover { background-color: #1e40af; transform: translateY(-2px); box-shadow: 0 15px 20px -5px rgba(0, 0, 0, 0.2), 0 6px 8px -6px rgba(0, 0, 0, 0.15); }
+        @media (min-width: 786px) {
+            .main-title, .subtitle, .section-spacing { padding-left: 2rem; padding-right: 2rem; }
+            .main-title { font-size: 4rem; }
+            .subtitle { font-size: 1.25rem; }
         }
-
-        .back-button:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px var(--border-blue-500), 0 0 0 4px rgba(59, 130, 246, 0.5); /* focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 */
-        }
-
-        /* Responsive adjustments */
-        @media (min-width: 768px) { /* md: */
-            .main-container {
-                padding: 3rem 4rem; /* md:p-12 lg:p-16 */
-                /* max-width: 90%; Removed for full width */
-                margin: 0 auto; /* Center it */
-            }
-            .main-title {
-                font-size: 4rem; /* md:text-6xl */
-            }
-            .subtitle {
-                font-size: 1.25rem; /* md:text-xl */
-            }
-        }
-
-        @media (min-width: 1024px) { /* lg: */
-            .main-container {
-                /* max-width: 1000px; Removed for full width */
-            }
+        @media (min-width: 1024px) {
+            .main-title, .subtitle, .section-spacing { padding-left: 4rem; padding-right: 4rem; }
         }
     </style>
 </head>
-<body class="bg-gradient-custom min-h-screen flex items-center justify-center">
+<body>
     <div class="main-container">
         <!-- Main title -->
-        <h1 class="main-title">
-            Webchat Update Log
-        </h1>
+        <h1 class="main-title">Webchat Update Log</h1>
         <p class="subtitle">See what's new, improved, and coming soon!</p>
 
-        <!-- Launched Versions (Newest First) -->
-        <div class="space-y-8 section-spacing text-left max-w-2xl mx-auto">
+        <!-- Versioning Scheme Note -->
+        <div class="note-section p-4 rounded-md mb-6 mx-4 md:mx-8 lg:mx-16 text-left">
+            <p class="font-semibold mb-2">Understanding Version Numbers (M.F.B.S):</p>
+            <ul class="list-disc list-inside text-sm space-y-1 mb-3">
+                <li><b class="text-white">M (Major):</b> Increments for significant, potentially breaking changes.</li>
+                <li><b class="text-white">F (Feature):</b> Increments for new, backward-compatible features.</li>
+                <li><b class="text-white">B (Bug):</b> Increments for backward-compatible bug fixes.</li>
+                <li><b class="text-white">S (Security):</b> Represents the security patch level. It increments only when a new security fix is released and is carried forward by all subsequent versions.</li>
+            </ul>
 
-            <!-- Version 3.0.0 (Launched - Major Release) -->
-            <div class="version-card card-green">
-                <h3 class="version-card-title">
-                    <span>Version 3.0.0</span>
-                    <span class="version-date">(July 6, 2025) - Launched!</span>
-                </h3>
-                <ul class="version-list">
-                    <li>Public launch of Webchat.</li>
-                    <li>A major improved UI.</li>
-                    <li>Added the support for videos.</li>
-                    <li>Added support for direct URL sharing.</li>
-                    <li>Don't forget to follow the official channel Web Chat Official.</li>
-                    <li><b>Streamlined User Interface:</b> Experience a majorly improved and intuitive UI for seamless navigation.</li>
-                    <li><b>Enhanced Media Sharing:</b> Share images, PDFs, and now videos directly within your chats.</li>
-                    <li><b>Direct URL Support:</b> Easily share and preview web links directly in messages.</li>
-                    <li><b>Advanced Group & Channel Management:</b> Comprehensive tools for creating, managing, and moderating private and public groups and channels.</li>
-                    <li><b>Message Control:</b> Enjoy features like easy replies, one-click forwarding, and improved context menus for better chat management.</li>
-                    <li><b>Personalization & Device Management:</b> Customize your profile with pictures and manage your logged-in devices from a central dashboard.</li>
-                    <li><b>Robust Security:</b> All your files and conversations are securely protected from unauthorized access.</li>
-                    <li><b>Optimized Performance:</b> Smoother navigation, faster message loading, and a more robust search experience.</li>
-                    <li><b>Official Channel Integration:</b> Stay connected and informed by following the official "Web Chat Official" channel for announcements and support.</li>
-                </ul>
-            </div>
+            <p class="font-semibold mb-2 mt-4">Color Scheme Key:</p>
+            <ul class="list-disc list-inside text-sm space-y-1">
+                <li class="flex items-center"><span class="inline-block w-4 h-4 rounded-full bg-green-700 mr-2"></span> Major Release</li>
+                <li class="flex items-center"><span class="inline-block w-4 h-4 rounded-full bg-orange-700 mr-2"></span> Security Update</li>
+                <li class="flex items-center"><span class="inline-block w-4 h-4 rounded-full bg-purple-700 mr-2"></span> Feature Update</li>
+                <li class="flex items-center"><span class="inline-block w-4 h-4 rounded-full bg-gray-700 mr-2"></span> Bug Fixes / Initial Release</li>
+            </ul>
+        </div>
 
-            <!-- Version 2.5.0 (Launched - Major Feature Rollup) -->
-            <div class="version-card card-blue">
-                <h3 class="version-card-title">
-                    <span>Version 2.5.0</span>
-                    <span class="version-date">(July 2, 2025) - Major Feature Rollup!</span>
-                </h3>
-                <ul class="version-list">
-                    <li><b>Enhanced Media & File Management:</b> Improved UI for preview of selected files, added support for major image formats, and seamless file selection and sharing.</li>
-                    <li><b>Advanced Messaging Features:</b> Easy replies and one-click message forwarding with preview; improved context menus for messages (e.g., "Reply," "Message Info"); and the forward icon is now always visible and uses a reliable SVG.</li>
-                    <li><b>Comprehensive Group Capabilities:</b> Introduction of private groups for exclusive conversations, along with expanded and full group management features for both private and public groups.</li>
-                    <li><b>User Experience & Dashboard Improvements:</b> UI improvements for Hamburger menu and a dedicated 'Chats' button; more robust search functionality; dashboard updates including option to log out of other devices; edit options moved to settings; and the ability for users to set their profile pictures for customization.</li>
-                    <li><b>Stability & Fixes:</b> Previous rollback issues (from Version 2.0.0) successfully fixed and re-released.</li>
-                </ul>
-            </div>
+        <!-- Update History (Newest First) -->
+        <div class="space-y-8 section-spacing" id="update-history">
+            <h2 class="section-title">Update History</h2>
 
-            <!-- Version 2.0.0 (Launched - Major Release) -->
-            <div class="version-card card-green">
-                <h3 class="version-card-title">
-                    <span>Version 2.0.0</span>
-                    <span class="version-date">(June 29, 2025) - Major Release!</span>
-                </h3>
-                <ul class="version-list">
-                    <li><b>Expanded Media Support:</b> Images, PDF, and rich text.</li>
-                    <li><b>Messages auto-delete after 24 hours for privacy.</b></li>
-                    <li><b>Enhanced File Security:</b> Files cannot be accessed by unauthorized users through direct links or any other means.</li>
-                    <li><b>File Preview:</b> File preview is now available before sending, ensuring you share the right content.</li>
-                    <li><b>Improved Group Chats:</b> Groups now display sender names, and you can easily start a personal chat with a sender by clicking on their name.</li>
-                    <li><b>Dashboard (View-Only):</b> A new dashboard is now available, providing a view-only overview of your activity.</li>
-                </ul>
-            </div>
-
-            <!-- Version 1.1.0 (Launched - Minor Release) -->
-            <div class="version-card card-gray collapsible-card" data-initial-hidden="true">
+            <!-- Version 4.0.0.4 -->
+            <div class="version-card card-green collapsible-card active">
                 <h3 class="version-card-title cursor-pointer flex justify-between items-center">
-                    <span>Version 1.1.0</span>
-                    <span class="version-date">(June 28, 2025)</span>
-                    <svg class="toggle-icon w-6 h-6 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
+                    <span>Version 4.0.0.4</span>
+                    <span class="version-date">(October 28, 2025) - The Performance & Stability Update!</span>
+                    <svg class="toggle-icon w-6 h-6 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                 </h3>
                 <ul class="version-list collapsible-content">
-                    <li>Public groups: Create and join public communities!</li>
-                    <li>Improved chat message loading for smoother experience.</li>
+                    <li><b>Complete Performance Overhaul:</b> Re-engineered core functionalities for a faster, smoother, and more responsive user experience from login to logout.</li>
+                    <li><b>Optimized Login Flow:</b> The login and registration processes are now significantly faster and more reliable.</li>
+                    <li><b>Smoother UI & Animations:</b> Refined the user interface with subtle tweaks and optimized animations that make navigation feel fluid.</li>
+                    <li><b>Faster Message Delivery:</b> Improved backend infrastructure for quicker message sending and receiving.</li>
+                    <li><b>Reduced Memory Usage:</b> Optimized application code to use less memory, improving performance on all devices.</li>
+                    <li>This version inherits all security patches up to security level 3.</li>
                 </ul>
             </div>
 
-            <!-- Version 1.0.0 (Launched - Initial Release) -->
-            <div class="version-card card-gray collapsible-card" data-initial-hidden="true">
+            <!-- Version 3.0.6.4 -->
+             <div class="version-card card-orange collapsible-card">
                 <h3 class="version-card-title cursor-pointer flex justify-between items-center">
-                    <span>Version 1.0.0</span>
-                    <span class="version-date">(June 28, 2025)</span>
-                    <svg class="toggle-icon w-6 h-6 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
+                    <span>Version 3.0.6.4</span>
+                    <span class="version-date">(July 27, 2025) - Security Update!</span>
+                    <svg class="toggle-icon w-6 h-6 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </h3>
+                <ul class="version-list collapsible-content">
+                    <li>For the safety of our users and to prevent abuse, email verification is now compulsory for using our services.</li>
+                    <li>The security patch level is now increased to 3.</li>
+                </ul>
+            </div>
+
+            <!-- Version 3.0.5.3 -->
+            <div class="version-card card-gray collapsible-card">
+                <h3 class="version-card-title cursor-pointer flex justify-between items-center">
+                    <span>Version 3.0.5.3</span>
+                    <span class="version-date">(July 15, 2025) - Bug Fixes & Refinements!</span>
+                    <svg class="toggle-icon w-6 h-6 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </h3>
+                <ul class="version-list collapsible-content">
+                    <li>Minor bug fixes to registration and conversations page.</li>
+                    <li>Resolved an issue preventing chats with new users.</li>
+                    <li>This version maintains the security patch level of 2.</li>
+                </ul>
+            </div>
+
+            <!-- Version 3.0.0.3 -->
+            <div class="version-card card-green collapsible-card">
+                <h3 class="version-card-title cursor-pointer flex justify-between items-center">
+                    <span>Version 3.0.0.3</span>
+                    <span class="version-date">(July 6, 2025) - Major Release!</span>
+                    <svg class="toggle-icon w-6 h-6 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </h3>
+                <ul class="version-list collapsible-content">
+                    <li><b>Public Launch:</b> Webchat is now available to everyone!</li>
+                    <li><b>Streamlined UI:</b> Experience a majorly improved and intuitive user interface.</li>
+                    <li><b>Enhanced Media Sharing:</b> Share images, PDFs, and now videos.</li>
+                    <li>This version incorporates all security patches up to security level 2.</li>
+                </ul>
+            </div>
+            
+            <!-- Version 2.5.5.3 -->
+            <div class="version-card card-orange collapsible-card">
+                <h3 class="version-card-title cursor-pointer flex justify-between items-center">
+                    <span>Version 2.5.5.3</span>
+                    <span class="version-date">(July 5, 2025) - Security Update!</span>
+                    <svg class="toggle-icon w-6 h-6 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </h3>
+                <ul class="version-list collapsible-content">
+                    <li>Implemented advanced security protocols and vulnerability fixes.</li>
+                    <li>The security patch level is now increased to 2.</li>
+                </ul>
+            </div>
+
+            <!-- Version 2.4.5.2 -->
+            <div class="version-card card-purple collapsible-card">
+                <h3 class="version-card-title cursor-pointer flex justify-between items-center">
+                    <span>Version 2.4.5.2</span>
+                    <span class="version-date">(July 4, 2025) - Feature & Patch Update!</span>
+                    <svg class="toggle-icon w-6 h-6 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </h3>
+                <ul class="version-list collapsible-content">
+                    <li>UI improvements and a dedicated 'Chats' button.</li>
+                    <li>Private groups are now available for exclusive conversations.</li>
+                    <li>This version maintains the security patch level of 1.</li>
+                </ul>
+            </div>
+
+            <!-- Version 2.0.0.2 -->
+            <div class="version-card card-green collapsible-card">
+                <h3 class="version-card-title cursor-pointer flex justify-between items-center">
+                    <span>Version 2.0.0.2</span>
+                    <span class="version-date">(June 29, 2025) - Major Release!</span>
+                    <svg class="toggle-icon w-6 h-6 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </h3>
+                <ul class="version-list collapsible-content">
+                    <li><b>Expanded Media Support:</b> Images, PDF, and rich text.</li>
+                    <li><b>Enhanced File Security</b> and file previews.</li>
+                    <li>This version incorporates all security patches up to security level 1.</li>
+                </ul>
+            </div>
+            
+            <!-- Version 1.5.5.2 -->
+            <div class="version-card card-orange collapsible-card">
+                <h3 class="version-card-title cursor-pointer flex justify-between items-center">
+                    <span>Version 1.5.5.2</span>
+                    <span class="version-date">(June 29, 2025) - Security Update!</span>
+                    <svg class="toggle-icon w-6 h-6 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                </h3>
+                <ul class="version-list collapsible-content">
+                    <li>Implemented routine security patches and vulnerability fixes.</li>
+                    <li>The security patch level is now increased to 1.</li>
+                </ul>
+            </div>
+
+            <!-- Version 1.5.0.0 -->
+            <div class="version-card card-purple collapsible-card">
+                <h3 class="version-card-title cursor-pointer flex justify-between items-center">
+                    <span>Version 1.5.0.1</span>
+                    <span class="version-date">(June 28, 2025) - Feature Update!</span>
+                    <svg class="toggle-icon w-6 h-6 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </h3>
+                <ul class="version-list collapsible-content">
+                    <li><b>Public Groups:</b> Create and join public communities!</li>
+                    <li>Improved chat message loading for a smoother experience.</li>
+                </ul>
+            </div>
+
+            <!-- Version 1.0.0.0 -->
+            <div class="version-card card-gray collapsible-card">
+                <h3 class="version-card-title cursor-pointer flex justify-between items-center">
+                    <span>Version 1.0.0.1</span>
+                    <span class="version-date">(June 28, 2025) - Initial Release</span>
+                    <svg class="toggle-icon w-6 h-6 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                 </h3>
                 <ul class="version-list collapsible-content">
                     <li>Initial Launch!</li>
                     <li>Personal chats for one-on-one secure conversations.</li>
                     <li>Privacy-focused architecture implemented.</li>
-                    <li>Messages auto-delete after 24 hours for privacy.</li>
                 </ul>
             </div>
         </div>
 
-        <!-- Planned Features Section -->
-        <div class="space-y-8 planned-features-section text-left max-w-2xl mx-auto">
-            <h2 class="section-title">Planned Features</h2>
-            <!-- No more planned features after 3.0.0 launch, this section will be empty or removed if no new plans -->
-            <p class="text-gray-400 text-center">Stay tuned for more exciting updates!</p>
-        </div>
-
         <!-- Back to main page link -->
-        <a href="index.html" class="back-button">
+        <a href="index.php" class="back-button">
             Back to Main Page
         </a>
     </div>
@@ -371,28 +316,25 @@
             const collapsibleCards = document.querySelectorAll('.collapsible-card');
 
             collapsibleCards.forEach(card => {
-                const title = card.querySelector('.version-card-title');
-                const content = card.querySelector('.collapsible-content');
-                const isInitialHidden = card.dataset.initialHidden === 'true';
+                const titleElement = card.querySelector('.version-card-title');
+                const contentElement = card.querySelector('.collapsible-content');
 
-                // Set initial state based on data-initial-hidden
-                if (isInitialHidden) {
-                    content.style.maxHeight = '0'; // Ensure it's collapsed
-                    card.classList.remove('active'); // Ensure active class is removed
+                if (card.classList.contains('active')) {
+                    contentElement.style.maxHeight = contentElement.scrollHeight + "px";
                 } else {
-                    // For other versions, ensure they are visible by default
-                    content.style.maxHeight = content.scrollHeight + "px"; // Set actual height
-                    card.classList.add('active'); // Mark as active if content is visible by default
+                    contentElement.style.maxHeight = '0';
                 }
-
-                title.addEventListener('click', () => {
-                    card.classList.toggle('active');
-                    if (card.classList.contains('active')) {
-                        content.style.maxHeight = content.scrollHeight + "px";
-                    } else {
-                        content.style.maxHeight = "0";
-                    }
-                });
+                
+                if (titleElement) {
+                    titleElement.addEventListener('click', () => {
+                        card.classList.toggle('active');
+                        if (card.classList.contains('active')) {
+                            contentElement.style.maxHeight = contentElement.scrollHeight + "px";
+                        } else {
+                            contentElement.style.maxHeight = "0";
+                        }
+                    });
+                }
             });
         });
     </script>
