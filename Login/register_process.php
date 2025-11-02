@@ -70,20 +70,79 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // --- 5. Hash the Password ---
     $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
-    // --- 6. Insert the New User into the Database ---
-    $sql_insert = "INSERT INTO users (username, public_id, email, password_hash, dob) VALUES (?, ?, ?, ?, ?)";
-    $stmt_insert = $mysqli->prepare($sql_insert);
-    // 'sssss' means we are binding 5 string variables
-    $stmt_insert->bind_param("sssss", $username, $public_id, $email, $password_hash, $dob);
+    // --- 6. Do NOT create the user yet. Stage registration details until OTP is verified ---
+    // Stash the pending registration in the session (minimal & reliable without schema change)
+    $_SESSION['pending_registration'] = [
+        'username' => $username,
+        'public_id' => $public_id,
+        'email' => $email,
+        'password_hash' => $password_hash,
+        'dob' => $dob,
+    ];
 
-    if ($stmt_insert->execute()) {
-        redirect_with_success("Registration successful! You can now log in.");
-    } else {
-        // For debugging, you might want to log the actual error: error_log($stmt_insert->error);
-        redirect_with_error("An unexpected error occurred. Please try again.");
+    // Proceed to OTP creation and email send flow
+    {
+        // On staged registration, send an email OTP and redirect to verification flow
+        $user_email_for_otp = $email;
+
+        // Store/refresh session for verification context
+        $_SESSION['verification_email'] = $user_email_for_otp;
+        $_SESSION['otp_sent_time'] = time();
+
+        // Try to generate and send OTP via email
+        try {
+            // Clean any existing OTP for this email
+            $stmt_delete = $mysqli->prepare("DELETE FROM email_verifications WHERE user_email = ?");
+            if (!$stmt_delete) { throw new Exception('Failed to prepare OTP delete statement.'); }
+            $stmt_delete->bind_param("s", $user_email_for_otp);
+            $stmt_delete->execute();
+
+            // Create a new 6-digit OTP valid for 10 minutes
+            $otp = random_int(100000, 999999);
+            $otp_str = (string)$otp;
+            $stmt_insert_otp = $mysqli->prepare("INSERT INTO email_verifications (user_email, token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE))");
+            if (!$stmt_insert_otp) { throw new Exception('Failed to prepare OTP insert statement.'); }
+            $stmt_insert_otp->bind_param("ss", $user_email_for_otp, $otp_str);
+            $stmt_insert_otp->execute();
+
+            // Send email using PHPMailer
+            // Load mailer library
+            require_once '../PHPMailer/Exception.php';
+            require_once '../PHPMailer/PHPMailer.php';
+            require_once '../PHPMailer/SMTP.php';
+            
+            $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+            $mail->isSMTP();
+            $mail->Host = 'smtp-relay.brevo.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'user_name_here';
+            $mail->Password = 'password_here';
+            $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+
+            $mail->setFrom('XXX@example.com', 'WebChat');
+            $mail->addAddress($user_email_for_otp);
+            $mail->isHTML(true);
+            $mail->Subject = 'Verify your WebChat account';
+            $mail->Body = "<h2>Your One-Time Password is:</h2><h1>{$otp}</h1><p>This code is valid for 10 minutes.</p>";
+            $mail->send();
+
+            // Redirect user straight to the verification page
+            $_SESSION['message'] = 'We\'ve sent a 6-digit code to your email. Enter it to verify your account.';
+            $_SESSION['message_type'] = 'success';
+            header('Location: verify.php');
+            exit();
+        } catch (Throwable $e) {
+            // If email sending fails, keep registration but ask user to verify later
+            error_log('OTP email send failed: ' . $e->getMessage());
+            $_SESSION['message'] = 'Registered successfully, but we could not send a verification code right now. Please open Verify and request a new code.';
+            $_SESSION['message_type'] = 'error';
+            header('Location: verify.php');
+            exit();
+        }
     }
 
-    $stmt_insert->close();
+    // Close connection
     $mysqli->close();
 
 } else {

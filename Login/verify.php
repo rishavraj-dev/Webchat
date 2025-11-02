@@ -1,24 +1,71 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Account Verification</title>
+    <title>Verify your account - Web Chat</title>
     <style>
-        body { font-family: -apple-system, sans-serif; display: flex; justify-content: center; padding-top: 50px; background-color: #f0f2f5; }
-        .container { width: 420px; padding: 30px; background: #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
-        h2 { margin-bottom: 20px; }
-        .form-group { margin-bottom: 20px; text-align: left;}
-        label { display: block; margin-bottom: 5px; font-weight: 600; }
-        input[type="text"] { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; }
-        input[name="otp"] { font-size: 1.5em; text-align: center; letter-spacing: 8px; }
-        button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px; }
-        #resend-btn { background-color: #6c757d; }
+        /* Match register.php dark UI */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #1f2937 0%, #0f172a 100%);
+            color: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .container {
+            background-color: #1f2937;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+        h2 { font-size: 1.6rem; font-weight: 800; margin-bottom: 1rem; }
+        p { color: #9ca3af; margin-bottom: 1rem; }
+        .form-group { margin-bottom: 1rem; text-align: left; }
+        label { display: block; text-align: left; font-weight: 500; margin-bottom: 0.5rem; }
+        input[type="text"]{
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #374151;
+            border: 2px solid #4b5563;
+            border-radius: 8px;
+            color: #e5e7eb;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        input:focus { outline: none; border-color: #3b82f6; }
+        input[name="otp"] { font-size: 1.4rem; text-align: center; letter-spacing: 8px; }
+        button {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 0.5rem;
+        }
+        button:hover { background-color: #1d4ed8; }
+        #resend-btn { background-color: #6b7280; }
+        #resend-btn:hover { background-color: #4b5563; }
         #resend-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .message { padding: 12px; margin-bottom: 20px; border-radius: 5px; text-align: center; }
-        .error { background-color: #f8d7da; color: #721c24; }
-        .success { background-color: #d4edda; color: #155724; }
-        .info { background-color: #e2e3e5; color: #383d41; }
-        #timer { margin-top: 10px; color: #666; }
+        .message { padding: 0.75rem; margin-bottom: 1rem; border-radius: 8px; text-align: center; }
+        .error { background-color: #be123c; color: #fecdd3; }
+        .success { background-color: #059669; color: #d1fae5; }
+        .info { background-color: #374151; color: #e5e7eb; }
+        #timer { margin-top: 10px; color: #9ca3af; }
     </style>
 </head>
 <body>
@@ -29,7 +76,7 @@
         <!-- Step 1: Form to get user's identifier -->
         <div id="identifier-step">
             <h2>Verify Your Account</h2>
-            <p>Enter your email or Public ID to begin.</p>
+            <p>Enter your email or Public ID to receive a 6-digit code.</p>
             <form id="identifier-form">
                 <div class="form-group">
                     <label for="identifier">Email or Public ID</label>
@@ -56,6 +103,15 @@
     </div>
 
     <script>
+    // Preload verification context from PHP session (if coming right after registration)
+    const prefilledEmail = <?php echo json_encode($_SESSION['verification_email'] ?? null); ?>;
+    const otpSentAt = <?php echo isset($_SESSION['otp_sent_time']) ? (int)$_SESSION['otp_sent_time'] : 'null'; ?>;
+    const flashMessage = <?php echo json_encode($_SESSION['message'] ?? null); ?>;
+    const flashType = <?php echo json_encode($_SESSION['message_type'] ?? null); ?>;
+    <?php
+    // Clear one-time flash message so refresh won't duplicate
+    unset($_SESSION['message'], $_SESSION['message_type']);
+    ?>
     document.addEventListener('DOMContentLoaded', () => {
         const identifierForm = document.getElementById('identifier-form');
         const otpForm = document.getElementById('otp-form');
@@ -76,8 +132,8 @@
         };
 
         // Function to start the resend timer
-        const startTimer = () => {
-            let countdown = 90;
+        const startTimer = (initialRemaining = 90) => {
+            let countdown = initialRemaining;
             resendBtn.disabled = true;
             const update = () => {
                 if (countdown <= 0) {
@@ -92,6 +148,29 @@
             update();
             resendInterval = setInterval(update, 1000);
         };
+
+        // If we already have a verification session, show OTP step immediately
+        if (prefilledEmail) {
+            identifierStep.style.display = 'none';
+            otpStep.style.display = 'block';
+            otpMessage.textContent = 'We sent a 6-digit code to the email associated with your account. The code expires in 10 minutes.';
+            // Compute remaining time for resend (90s window)
+            let remaining = 90;
+            if (otpSentAt) {
+                const elapsed = Math.floor(Date.now() / 1000) - otpSentAt;
+                remaining = Math.max(0, 90 - elapsed);
+            }
+            startTimer(remaining);
+            // Show any flash message
+            if (flashMessage && flashType) {
+                messageArea.innerHTML = `<div class="message ${flashType}">${flashMessage}</div>`;
+            } else {
+                messageArea.innerHTML = `<div class="message success">An OTP has been sent to your email.</div>`;
+            }
+        } else if (flashMessage && flashType) {
+            // If no prefill but we have a message, show it
+            messageArea.innerHTML = `<div class="message ${flashType}">${flashMessage}</div>`;
+        }
 
         // Handle submission of the first form (Identifier)
         identifierForm.addEventListener('submit', async (e) => {

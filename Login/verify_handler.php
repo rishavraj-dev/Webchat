@@ -42,8 +42,8 @@ function send_otp($mysqli, $email) {
         $mail->Password = '';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
-        
-        $mail->setFrom('XXXX@gmail.com', 'WebChat');
+
+        $mail->setFrom('XXX@example.com', 'WebChat');
         $mail->addAddress($email);
         $mail->isHTML(true);
         $mail->Subject = 'Your Account Verification Code';
@@ -103,15 +103,49 @@ try {
             $stmt->execute();
             
             if ($stmt->get_result()->num_rows === 1) {
-                $stmt_update = $mysqli->prepare("UPDATE users SET verified = 'yes' WHERE email = ?");
-                $stmt_update->bind_param("s", $email);
-                $stmt_update->execute();
+                // If a user already exists for this email, just mark verified
+                $stmt_user = $mysqli->prepare("SELECT id FROM users WHERE email = ? LIMIT 1");
+                $stmt_user->bind_param("s", $email);
+                $stmt_user->execute();
+                $user_res = $stmt_user->get_result();
 
+                if ($user_res->num_rows === 1) {
+                    $stmt_update = $mysqli->prepare("UPDATE users SET verified = 'yes' WHERE email = ?");
+                    $stmt_update->bind_param("s", $email);
+                    $stmt_update->execute();
+                } else {
+                    // No user yet: create from pending registration (new flow)
+                    $pending = $_SESSION['pending_registration'] ?? null;
+                    if (!$pending || !isset($pending['email']) || strcasecmp($pending['email'], $email) !== 0) {
+                        throw new Exception('No pending registration found for this email. Please register again.');
+                    }
+
+                    // Double-check duplicates constraint before insert
+                    $dupId = $mysqli->prepare("SELECT 1 FROM users WHERE public_id = ? OR email = ? LIMIT 1");
+                    $dupId->bind_param("ss", $pending['public_id'], $pending['email']);
+                    $dupId->execute();
+                    if ($dupId->get_result()->num_rows > 0) {
+                        throw new Exception('This Public ID or Email is already registered.');
+                    }
+
+                    $insert = $mysqli->prepare("INSERT INTO users (username, public_id, email, password_hash, dob, verified) VALUES (?, ?, ?, ?, ?, 'yes')");
+                    $insert->bind_param(
+                        "sssss",
+                        $pending['username'],
+                        $pending['public_id'],
+                        $pending['email'],
+                        $pending['password_hash'],
+                        $pending['dob']
+                    );
+                    $insert->execute();
+                }
+
+                // Clean OTP and session
                 $stmt_delete = $mysqli->prepare("DELETE FROM email_verifications WHERE user_email = ?");
                 $stmt_delete->bind_param("s", $email);
                 $stmt_delete->execute();
-                
-                unset($_SESSION['verification_email'], $_SESSION['otp_sent_time']);
+                unset($_SESSION['verification_email'], $_SESSION['otp_sent_time'], $_SESSION['pending_registration']);
+
                 $response = ['status' => 'success', 'message' => 'Account verified!'];
             } else {
                 $response = ['status' => 'invalid_otp', 'message' => 'Invalid or expired OTP.'];
