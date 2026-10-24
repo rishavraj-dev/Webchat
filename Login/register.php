@@ -1,13 +1,19 @@
 <?php
 // We must start the session to access session variables
 session_start();
+
+// Security headers
+header("X-Frame-Options: SAMEORIGIN");
+header("X-Content-Type-Options: nosniff");
+header("Referrer-Policy: strict-origin-when-cross-origin");
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Web Chat</title>
+    <title>Create Account - Webchat</title>
+    <meta name="description" content="Create a new account on Webchat to start chatting securely and privately.">
     <style>
         /* --- Basic Reset & Font --- */
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -19,26 +25,79 @@ session_start();
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            padding: 1rem;
+            padding: 1.5rem 1rem;
         }
 
         /* --- Form Container --- */
         .form-container {
             background-color: #1f2937; /* Dark gray */
-            padding: 2.5rem;
+            padding: 2.25rem;
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
             width: 100%;
             max-width: 450px;
+            border: 1px solid #374151;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: #9ca3af;
+            text-decoration: none;
+            font-size: 0.85rem;
+            margin-bottom: 1.25rem;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: #fff; }
+
+        .logo-badge {
+            width: 48px;
+            height: 48px;
+            background-color: #059669;
+            color: #fff;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 auto 0.75rem;
+            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.4);
         }
 
         /* --- Headings and Text --- */
-        h1 { font-size: 2rem; font-weight: 800; text-align: center; margin-bottom: 1.5rem; }
+        h1 { font-size: 1.85rem; font-weight: 800; text-align: center; margin-bottom: 0.5rem; }
+        .subtitle { text-align: center; font-size: 0.875rem; color: #9ca3af; margin-bottom: 1.5rem; }
         label { display: block; text-align: left; font-weight: 500; margin-bottom: 0.5rem; }
         .subtext { font-size: 0.8rem; text-align: left; color: #9ca3af; margin-top: 0.25rem; }
         .link { color: #3b82f6; text-decoration: none; font-weight: 500; }
         .link:hover { text-decoration: underline; }
-        .login-link { text-align: center; margin-top: 1.5rem; }
+        .login-link { text-align: center; margin-top: 1.25rem; }
+        .terms-agreement {
+            font-size: 0.78rem;
+            color: #9ca3af;
+            text-align: center;
+            margin-top: 1rem;
+            line-height: 1.4;
+        }
+        .legal-divider {
+            border: none;
+            border-top: 1px solid #374151;
+            margin: 1.25rem 0 1rem;
+        }
+        .legal-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.85rem;
+            font-size: 0.78rem;
+            color: #9ca3af;
+        }
+        .legal-links a {
+            color: #9ca3af;
+            text-decoration: underline;
+        }
+        .legal-links a:hover { color: #e5e7eb; }
 
         /* --- Form Elements --- */
         .form-group { margin-bottom: 1rem; }
@@ -87,7 +146,10 @@ session_start();
 </head>
 <body>
     <div class="form-container">
+        <a href="../index.php" class="back-link">&larr; Back to Home</a>
+        <div class="logo-badge">W</div>
         <h1>Create Your Account</h1>
+        <p class="subtitle">Join Webchat for fast, private conversations</p>
 
         <?php
             // Display feedback messages from the session
@@ -128,9 +190,19 @@ session_start();
                 <input type="date" id="dob" name="dob" required>
             </div>
             <button type="submit" class="submit-btn">Sign Up</button>
+            <p class="terms-agreement">By signing up, you agree to our <a href="../terms.php" class="link">Terms of Service</a> and <a href="../privacy.php" class="link">Privacy Policy</a>.</p>
         </form>
         <div class="login-link">
             <p>Already have an account? <a href="login.php" class="link">Sign In</a></p>
+        </div>
+
+        <hr class="legal-divider">
+        <div class="legal-links">
+            <a href="../privacy.php">Privacy Policy</a>
+            <span>&bull;</span>
+            <a href="../terms.php">Terms of Service</a>
+            <span>&bull;</span>
+            <a href="../updates.html">Updates</a>
         </div>
     </div>
 

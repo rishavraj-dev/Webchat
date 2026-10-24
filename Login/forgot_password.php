@@ -97,8 +97,13 @@
         </div>
     </main>
     
-    <footer class="fallback-link">
-        <a href="login.php">Remembered your password? Login</a>
+    <footer class="fallback-link" style="text-align: center; margin-top: 20px;">
+        <p style="margin-bottom: 12px;"><a href="login.php" style="color: var(--primary-color); text-decoration: none;">Remembered your password? Login</a></p>
+        <div style="font-size: 0.8rem; color: var(--text-secondary); display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+            <a href="../index.php" style="color: var(--text-secondary); text-decoration: underline;">Home</a>
+            <a href="../privacy.php" style="color: var(--text-secondary); text-decoration: underline;">Privacy Policy</a>
+            <a href="../terms.php" style="color: var(--text-secondary); text-decoration: underline;">Terms of Service</a>
+        </div>
     </footer>
 
     <script>

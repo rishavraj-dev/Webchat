@@ -17,6 +17,7 @@ if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Webchat – Secure, Modern Messaging</title>
+    <meta name="description" content="Webchat is a modern, privacy-focused messaging application featuring personal chats, channels, groups, and auto-deleting messages.">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -137,6 +138,17 @@ if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
                     <span>Device Management & Dashboard</span>
                 </li>
             </ul>
+        </div>
+
+        <!-- Footer / Legal & Trust Links -->
+        <div class="border-t border-gray-700 pt-6 mt-8 flex flex-col sm:flex-row items-center justify-between text-sm text-gray-400 gap-4">
+            <p>&copy; <?php echo date('Y'); ?> Webchat. All rights reserved.</p>
+            <div class="flex flex-wrap justify-center items-center gap-6">
+                <a href="privacy.php" class="hover:text-white transition-colors underline">Privacy Policy</a>
+                <a href="terms.php" class="hover:text-white transition-colors underline">Terms of Service</a>
+                <a href="updates.html" class="hover:text-white transition-colors underline">Update History</a>
+                <a href="Login/login.php" class="text-blue-400 hover:text-blue-300 font-medium">Sign In</a>
+            </div>
         </div>
     </div>
 </body>

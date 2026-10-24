@@ -100,6 +100,13 @@ session_start();
             <button id="resend-btn" disabled>Resend Code</button>
             <div id="timer"></div>
         </div>
+
+        <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid #374151; font-size: 0.8rem; color: #9ca3af; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+            <a href="../index.php" style="color: #9ca3af; text-decoration: underline;">Home</a>
+            <a href="login.php" style="color: #9ca3af; text-decoration: underline;">Sign In</a>
+            <a href="../privacy.php" style="color: #9ca3af; text-decoration: underline;">Privacy Policy</a>
+            <a href="../terms.php" style="color: #9ca3af; text-decoration: underline;">Terms of Service</a>
+        </div>
     </div>
 
     <script>
